@@ -16,11 +16,11 @@ print(f"Total of {total_samples} observations from {len(unique_stations)} statio
 
 stations = []
 table = []
-table.append("|ID|NAME|LAT|LON|First observation|Last observation|No. observations|Min volume|Max volume|Mean volume|Standard deviation|\n")
-table.append("|-|-|-|-|-|-|-|-|-|-|-|\n")
+table.append("|Index|ID|NAME|LAT|LON|First observation|Last observation|No. observations|Min volume|Max volume|Mean volume|Standard deviation|\n")
+table.append("|-|-|-|-|-|-|-|-|-|-|-|-|\n")
 
 print("Calculating statistics...")
-for station in tqdm(unique_stations):
+for j, station in enumerate(tqdm(unique_stations)):
     station_info = station_df[station_df["id"] == station]
     station_data = traffic_data[traffic_data["station_id"] == station]
     volume = station_data["volume"]
@@ -28,8 +28,8 @@ for station in tqdm(unique_stations):
     name = station_info["name"].item()
     lat = station_info["latitude"].item()
     lon = station_info["longitude"].item()
-    table.append(f"|**{station}**|{name}|{lat}|{lon}|{timestamps.min()}|{timestamps.max()}|{volume.size}|{volume.min()}|{volume.max()}|{volume.mean():.3f}|{volume.std():.3f}|\n")
-    stations.append({"id" : station, "volume" : volume, "timestamps" : timestamps, "observations" : len(volume), "name" : name, "coords" : (lat, lon)})
+    table.append(f"|{j}|**{station}**|{name}|{lat}|{lon}|{timestamps.min()}|{timestamps.max()}|{volume.size}|{volume.min()}|{volume.max()}|{volume.mean():.3f}|{volume.std():.3f}|\n")
+    #stations.append({"id" : station, "volume" : volume, "timestamps" : timestamps, "observations" : len(volume), "name" : name, "coords" : (lat, lon)})
 
 with open(summary_table_file, "w") as f:
     f.writelines(table)
