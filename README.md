@@ -27,7 +27,7 @@ Here are the steps to follow if you want to train and evaluate the models from s
 ## Overview of data and model architectures
 
 ### Data exploration and pre-processing
-
+The dataset contains observations from 109 unique traffic stations. Some of them are built pretty recently and have less than 1300 observations. For simplicity, we will not include these stations in the final dataset. In total we then have 95 stations with the number of observations ranging from 37963 to 67077. The timestamps of the observations ranges from 2014-12-31 (23:00) to 2022-12-31 (21:00).
 
 ### The baseline model
 

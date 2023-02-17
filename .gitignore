@@ -2,3 +2,4 @@ tags
 __pycache__
 data/traffic_data.csv
 data/traffic_data.pkl
+data/time_series_data.pkl
