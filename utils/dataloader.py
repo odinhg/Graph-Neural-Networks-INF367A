@@ -23,10 +23,13 @@ class TrafficVolumeDataSet(Dataset):
         month = getattr(data_now, "name").month
         weekday = getattr(data_now, "name").weekday()
         hour = getattr(data_now, "name").hour
+        datetime = torch.Tensor([month, weekday, hour])
 
-        data_now = torch.Tensor(data_now.values)
-        data_next = torch.Tensor(data_next.values)
-        return ((month, weekday, hour, data_now), data_next)
+        volumes_now = torch.Tensor(data_now.to_numpy(dtype=np.float32))
+        target = torch.Tensor(data_next.to_numpy(dtype=np.float32))
+        data_now = torch.cat((datetime, volumes_now))
+
+        return (data_now, target, index) 
 
     def __len__(self):
         return self.len
@@ -41,7 +44,12 @@ def normalize(subset, mean, std):
     subset.dataset.df.iloc[indices, :] = (subset.dataset.df.iloc[indices, :] - mean) / std
     return subset
 
-def TrafficVolumeDataLoader(datafile, val=0.1, test=0.1, batch_size=32, num_workers=4, random_seed=0, normalize_data=True):
+def min_max(subset):
+    indices = subset.indices
+    dataset = subset.dataset.df.iloc[indices, :]
+    return (dataset.min(), dataset.max())
+
+def TrafficVolumeDataLoader(datafile, val=0.1, test=0.1, batch_size=32, num_workers=4, random_seed=0, normalize_data=False):
     dataset = TrafficVolumeDataSet(datafile)
     
     # Split the dataset into training, validation and testing data
@@ -54,11 +62,17 @@ def TrafficVolumeDataLoader(datafile, val=0.1, test=0.1, batch_size=32, num_work
     # Normalize dataset with statistics computed on the training daga (to prevent data leakage)
     if normalize_data:
         print("Normalizing datasets...")
+        min_val, max_val = min_max(train_dataset)
+        mean, std = min_val, max_val - min_val
+        train_dataset = normalize(train_dataset, mean, std)
+        val_dataset = normalize(val_dataset, mean, std)
+        test_dataset = normalize(test_dataset, mean, std)
+        """
         mean, std = mean_std(train_dataset)
         train_dataset = normalize(train_dataset, mean, std)
         val_dataset = normalize(val_dataset, mean, std)
         test_dataset = normalize(test_dataset, mean, std)
-    
+        """
     # Create dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
@@ -69,5 +83,3 @@ def TrafficVolumeDataLoader(datafile, val=0.1, test=0.1, batch_size=32, num_work
     print(f"Test data: {len(test_dataloader)*batch_size} rows.")
 
     return (train_dataloader, val_dataloader, test_dataloader)
-
-TrafficVolumeDataLoader("../data/time_series_data.pkl")

@@ -35,6 +35,8 @@ The dataset contains observations from 109 unique traffic stations. Some of them
 **Timestamps with no observations**
 Listing the timestamps where all stations are missing data (all NaN rows) we see that this happens exactly at 22:00 every day. In the pre-processing stage, the average of the traffic volumes from 21:00 and 23:00 are copied to fill the entries for 22:00. Rows that contain at least one non-NaN value are not modified in the preprocessing step. However, the custom torch dataset will replace the remaining NaN values with -1 before converting the data to torch tensors. In this way, the model can hopefully learn to deal with missing data from some stations.
 
+When first training the baseline model, there was a big spike in the training loss happening once every epoch. Monitoring the training loss, the observation(s) causing the spike were tracked down.
+
 ### The baseline model
 
 
