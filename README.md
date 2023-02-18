@@ -27,7 +27,13 @@ Here are the steps to follow if you want to train and evaluate the models from s
 ## Overview of data and model architectures
 
 ### Data exploration and pre-processing
+
+Files to run: `unpack_data.py`, `create_data_summary.md` and `preprocess_data.py`
+
 The dataset contains observations from 109 unique traffic stations. Some of them are built pretty recently and have less than 1300 observations. For simplicity, we will not include these stations in the final dataset. In total we then have 95 stations with the number of observations ranging from 37963 to 67077. The timestamps of the observations ranges from 2014-12-31 (23:00) to 2022-12-31 (21:00).
+
+**Timestamps with no observations**
+Listing the timestamps where all stations are missing data (all NaN rows) we see that this happens exactly at 22:00 every day. In the pre-processing stage, the average of the traffic volumes from 21:00 and 23:00 are copied to fill the entries for 22:00. Rows that contain at least one non-NaN value are not modified in the preprocessing step. However, the custom torch dataset will replace the remaining NaN values with -1 before converting the data to torch tensors. In this way, the model can hopefully learn to deal with missing data from some stations.
 
 ### The baseline model
 

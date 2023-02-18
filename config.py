@@ -13,7 +13,7 @@ summary_table_file = join(docs_path, "data_summary_table.md")
 time_series_file = join(data_path, "time_series_data.pkl")
 
 # Drop stations having too few observations
-max_number_of_nans = 68000 
+min_number_of_observations = 1500
 
 # How much data to use for training, validation and testing/evaluation
 train_fraction, val_fraction, test_fraction = 0.8, 0.1, 0.1

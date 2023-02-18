@@ -2,7 +2,7 @@
 This script unpacks the zipped datafile into a pickled dataframe.
 """
 import pandas as pd
-from os.path import isfile, join
+from os.path import isfile
 from config import *
 
 # Unpack compressed data file if csv file is not found
