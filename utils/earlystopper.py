@@ -1,7 +1,7 @@
 import numpy as np
 
 class EarlyStopper():
-    def __init__(self, limit = 10, delta= 0.001):
+    def __init__(self, limit = 20, delta= 0.001):
         self.limit = limit
         self.delta = delta 
         self.min_loss = np.inf

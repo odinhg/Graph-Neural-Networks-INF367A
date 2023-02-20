@@ -97,8 +97,8 @@ print("Evaluating model on test data.")
 station_indices = [9,93,17] # Indices of stations to plot
 actual_volumes = [[]]*len(station_indices)
 predicted_volumes = [[]]*len(station_indices)
-idx_start = 3000 
-idx_stop = 3336
+idx_start = 5000 
+idx_stop = 5336
 
 df = pd.read_pickle(time_series_file)
 station_names = df.columns[station_indices]

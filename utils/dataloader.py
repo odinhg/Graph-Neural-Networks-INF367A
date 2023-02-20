@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data.dataset import Dataset
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, Subset
 from os.path import isfile 
 import pandas as pd
 import numpy as np
@@ -49,33 +49,44 @@ def min_max(subset):
     dataset = subset.dataset.df.iloc[indices, :]
     return (dataset.min(), dataset.max())
 
-def TrafficVolumeDataLoader(datafile, val=0.1, test=0.1, batch_size=32, num_workers=4, random_seed=0, normalize_data=False):
+def TrafficVolumeDataLoader(datafile, val=0.1, test=0.1, batch_size=32, num_workers=4, random_seed=0, normalize_data="minmax", sequential_split=False):
     dataset = TrafficVolumeDataSet(datafile)
     
     # Split the dataset into training, validation and testing data
     val_size = int(val * len(dataset))
     test_size = int(test * len(dataset))
     train_size = len(dataset) - val_size - test_size
-    generator = torch.Generator().manual_seed(random_seed)
-    train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size], generator=generator)
+
+    # Split dataset in chronological order or randomly
+    if sequential_split:
+        train_dataset = Subset(dataset, range(train_size))
+        val_dataset = Subset(dataset, range(train_size, train_size + val_size))
+        test_dataset = Subset(dataset, range(train_size + val_size, len(dataset)))
+    else:
+        generator = torch.Generator().manual_seed(random_seed)
+        train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size], generator=generator)
 
     # Normalize dataset with statistics computed on the training daga (to prevent data leakage)
-    if normalize_data:
+    if normalize_data: 
         print("Normalizing datasets...")
-        min_val, max_val = min_max(train_dataset)
-        mean, std = min_val, max_val - min_val
+        if normalize_data == "minmax":
+            # Scale to [0,1]
+            min_val, max_val = min_max(train_dataset)
+            mean, std = min_val, max_val - min_val
+        elif normalize_data == "normal":
+            # Compute z-scores
+            mean, std = mean_std(train_dataset)
+        else:
+            print("Invalid normalization method: {normalize_data}.")
+            mean, std = 0, 1
+
         train_dataset = normalize(train_dataset, mean, std)
         val_dataset = normalize(val_dataset, mean, std)
         test_dataset = normalize(test_dataset, mean, std)
-        """
-        mean, std = mean_std(train_dataset)
-        train_dataset = normalize(train_dataset, mean, std)
-        val_dataset = normalize(val_dataset, mean, std)
-        test_dataset = normalize(test_dataset, mean, std)
-        """
+
     # Create dataloaders
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     
     print(f"Training data: {len(train_dataloader)*batch_size} rows.")

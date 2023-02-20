@@ -2,6 +2,11 @@
 ## Project 1 in INF367A : Geometric / Topological Deep Learning
 ### Odin Hoff Gardå, 2023 
 
+### TODO
+
+- Split training, validation and test data into separate pickled dataframes?
+- Save information of traffic stations included in a new file?
+
 In the following project we are given the traffic volumes registred at different traffic stations at a given hour and we aim to predict the traffic volumes for the next hour. There are two models up for comparison. Namely, one basic fully connected neural network (baseline) and one GNN (graph neural network). The dataset comes from Statens Vegvesen.
 
 ## Quickstart
