@@ -2,6 +2,9 @@ tags
 __pycache__
 
 data/traffic_data.csv
-data/*.pkl
+data/traffic_data.pkl
+data/time_series_test.pkl
+data/time_series_val.pkl
+data/time_series_train.pkl
 
 *.swp
