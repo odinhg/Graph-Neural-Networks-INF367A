@@ -28,6 +28,11 @@ for station_id in tqdm(unique_stations):
 print(f"Dropping stations with too few observations (<{min_number_of_observations})...")
 time_series_data.dropna(thresh=min_number_of_observations, axis=1, inplace=True)
 
+# All stations are missing values at 22:00 every day. 
+# Replace these all-NaN rows by the mean of the row before and the row after.
+print("Filling rows with all NaN...")
+time_series_data.loc[time_series_data.isnull().all(axis=1), :] = (time_series_data.ffill() + time_series_data.bfill()) / 2
+
 # Split the dataset into training, validation and testing data
 n_total = len(time_series_data)
 val_size = int(val_fraction * n_total)

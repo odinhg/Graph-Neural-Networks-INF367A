@@ -1,5 +1,8 @@
 tags
 __pycache__
+checkpoints
+
 data/traffic_data.csv
-data/traffic_data.pkl
-data/time_series_data.pkl
+data/*.pkl
+
+*.swp
