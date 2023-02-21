@@ -21,7 +21,9 @@ print(f"Model name:\t{config_baseline['name']}")
 print(f"Learning rate:\t{config_baseline['lr']}")
 print(f"Batch size:\t{config_baseline['batch_size']}")
 
-train_dataloader, val_dataloader, test_dataloader = TrafficVolumeDataLoader(time_series_file, val_fraction, test_fraction, batch_size, num_workers, 0, normalize_data, sequential_split)
+train_dataloader = TrafficVolumeDataLoader(train_data_file, batch_size, num_workers, random_seed=0, shuffle=True, drop_last=True)
+val_dataloader = TrafficVolumeDataLoader(val_data_file, batch_size, num_workers, random_seed=0, shuffle=False, drop_last=False)
+test_dataloader = TrafficVolumeDataLoader(test_data_file, batch_size, num_workers, random_seed=0, shuffle=False, drop_last=False)
 
 val_steps = len(train_dataloader) // validations_per_epoch 
 
@@ -100,10 +102,9 @@ predicted_volumes = [[]]*len(station_indices)
 idx_start = 5000 
 idx_stop = 5336
 
-df = pd.read_pickle(time_series_file)
+df = pd.read_pickle(test_data_file)
 station_names = df.columns[station_indices]
-test_data_start_idx = (len(train_dataloader) + len(val_dataloader)) * batch_size
-timestamps = df.iloc[test_data_start_idx + idx_start : test_data_start_idx + idx_stop].index.values
+timestamps = df.iloc[idx_start : idx_stop].index.values
 
 with torch.no_grad():
     test_losses = []

@@ -8,7 +8,6 @@ assert isfile(data_file_pkl), "Error: Pickled data not found. Please run unpack_
 traffic_data = pd.read_pickle(data_file_pkl)
 station_df = pd.read_csv(stations_data_file)
 unique_stations = traffic_data["station_id"].unique()
-
 first_timestamp = traffic_data["time_from"].min()
 last_timestamp = traffic_data["time_from"].max()
 
@@ -18,14 +17,7 @@ print("Building time series dataframe... Please grab a coffee!")
 
 time_series_data = pd.DataFrame(index=pd.date_range(first_timestamp, last_timestamp, freq="1H"), columns=unique_stations)
 
-# This is painfully slow, but it works for now.
-#for row in tqdm(traffic_data.itertuples(), total=traffic_data.shape[0]):
-#    time_series_data.loc[getattr(row, "time_from"), getattr(row, "station_id")] = getattr(row, "volume")
-
 for station_id in tqdm(unique_stations):
-    #station_id = getattr(station, "id")
-    #timestamps = traffic_data.loc[traffic_data["station_id"]==station_id, "time_from"]
-    #volumes = traffic_data.loc[traffic_data["station_id"]==station_id, "volume"]
     df = traffic_data.loc[traffic_data["station_id"]==station_id, ["volume", "time_from"]]
     timestamps = df["time_from"]
     volumes = df["volume"]
@@ -36,13 +28,36 @@ for station_id in tqdm(unique_stations):
 print(f"Dropping stations with too few observations (<{min_number_of_observations})...")
 time_series_data.dropna(thresh=min_number_of_observations, axis=1, inplace=True)
 
-# Replace all NaN rows with data from the previous  and next row (taking the average)
-#print("Filling all NaN rows...")
-#time_series_data.loc[time_series_data.isnull().all(axis=1), :] = (time_series_data.ffill() + time_series_data.bfill()) / 2
+# Split the dataset into training, validation and testing data
+n_total = len(time_series_data)
+val_size = int(val_fraction * n_total)
+test_size = int(test_fraction * n_total)
+train_size = n_total - val_size - test_size
+train_df = time_series_data.iloc[0 : train_size]
+val_df = time_series_data.iloc[train_size : train_size + val_size]
+test_df = time_series_data.iloc[train_size + val_size : n_total]
 
-# Normalize dataset using statistics from training data (to prevent data leakage) 
-# time_series_data = (time_series_data - time_series_data.mean()) / time_series_data.std()
+if normalize_data: 
+    print("Normalizing data...") 
+    if normalize_data == "minmax":
+        # Scale to [0,1]
+        min_val, max_val = train_df.min(), train_df.max() 
+        mean, std = min_val, max_val - min_val
+    elif normalize_data == "normal":
+        # Compute z-scores
+        mean, std = train_df.mean(), train_df.std()
+    else:
+        print("Invalid normalization method: {normalize_data}.")
+        mean, std = 0, 1
 
-print(f"Time series contain {len(time_series_data)} hours of data from {len(time_series_data.columns)} stations. (Missing observations have value NaN)")
-time_series_data.to_pickle(time_series_file) 
-print(f"Time series data saved to {time_series_file}.")
+    train_df = (train_df - mean) / std
+    val_df = (val_df - mean) / std
+    test_df = (test_df - mean) / std
+
+train_df.to_pickle(train_data_file)
+val_df.to_pickle(val_data_file)
+test_df.to_pickle(test_data_file)
+
+print(f"Time series contain {n_total} hours of data from {len(time_series_data.columns)} stations. (Missing observations have value NaN)")
+print(f"Split: {len(train_df)} (train), {len(val_df)} (val) and {len(test_df)} (test) samples")
+print(f"Time series data saved to \"{train_data_file}\", \"{val_data_file}\" and \"{test_data_file}\"")

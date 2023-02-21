@@ -12,17 +12,20 @@ data_file_pkl = join(data_path, "traffic_data.pkl")
 stations_data_file = join(data_path, "traffic_stations.csv")
 summary_table_file = join(docs_path, "data_summary_table.md")
 time_series_file = join(data_path, "time_series_data.pkl")
+train_data_file = join(data_path, "time_series_train.pkl")
+val_data_file = join(data_path, "time_series_val.pkl")
+test_data_file = join(data_path, "time_series_test.pkl")
 
-
-# Globals
+# Pre-processing
 min_number_of_observations = 1500   # Drop stations having too few observations
-num_workers = 8                     # Number of workers to use with dataloader
-device = "cuda:4" #"cpu"                      # Device for PyTorch to use
 val_fraction = 0.15                 # Fraction of data to use for validation data
 test_fraction = 0.15                # Fraction of data to use for test data
-normalize_data = None #"minmax"           # "minmax" : scale to [0,1], "normal" : use z-scores, None : no normalization
-sequential_split = True             # Split data in chronological order if true. If false, use a random split (in time).
-validations_per_epoch = 4           # How many time to do validation per epoch
+normalize_data = "minmax"           # "minmax" : scale to [0,1], "normal" : use z-scores, None : no normalization
+
+# Training 
+num_workers = 8                     # Number of workers to use with dataloader.
+device = "cuda:4"                   # Device for PyTorch to use. Can be "cpu" or "cuda:n".
+validations_per_epoch = 4           # How many time to do validation per epoch.
 
 # Baseline model
 config_baseline = {}
