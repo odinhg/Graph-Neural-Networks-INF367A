@@ -1,6 +1,5 @@
 tags
 __pycache__
-checkpoints
 
 data/traffic_data.csv
 data/*.pkl
