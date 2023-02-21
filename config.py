@@ -16,8 +16,8 @@ time_series_file = join(data_path, "time_series_data.pkl")
 
 # Globals
 min_number_of_observations = 1500   # Drop stations having too few observations
-num_workers = 4                     # Number of workers to use with dataloader
-device = "cpu"                      # Device for PyTorch to use
+num_workers = 8                     # Number of workers to use with dataloader
+device = "cuda:4" #"cpu"                      # Device for PyTorch to use
 val_fraction = 0.15                 # Fraction of data to use for validation data
 test_fraction = 0.15                # Fraction of data to use for test data
 normalize_data = None #"minmax"           # "minmax" : scale to [0,1], "normal" : use z-scores, None : no normalization

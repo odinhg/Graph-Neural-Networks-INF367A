@@ -111,7 +111,7 @@ with torch.no_grad():
         data_now, target, index = data[0].to(device), data[1].to(device), data[2]
         preds = model(data_now)
         test_loss = loss_function(preds, target)
-        test_losses.append(test_loss)
+        test_losses.append(test_loss.item())
 
         for i, j in enumerate(station_indices):
             actual_volumes[i] = np.concatenate((actual_volumes[i], data_now.cpu().detach().numpy()[:, 3+j]))
