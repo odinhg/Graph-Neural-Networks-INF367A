@@ -12,6 +12,11 @@ import torch.nn as nn
 from torch.optim import Adam
 from torchinfo import summary
 
+if "cuda" in device and not torch.cuda.is_available():
+    print(f"Warning: Device set to {device} in config but no GPU available. Using CPU instead.")
+    device = "cpu"
+    num_workers = 4
+
 lr = config_baseline["lr"]
 batch_size = config_baseline["batch_size"]
 epochs = config_baseline["epochs"]
