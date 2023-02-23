@@ -66,3 +66,7 @@ test_df.to_pickle(test_data_file)
 print(f"Time series contain {n_total} hours of data from {len(time_series_data.columns)} stations. (Missing observations have value NaN)")
 print(f"Split: {len(train_df)} (train), {len(val_df)} (val) and {len(test_df)} (test) samples")
 print(f"Time series data saved to \"{train_data_file}\", \"{val_data_file}\" and \"{test_data_file}\"")
+
+stations_included = train_df.columns
+pd.Series(stations_included).to_csv(stations_included_file)
+print(f"IDs of stations included in pre-processed data saved to {stations_included_file}.")

@@ -26,9 +26,9 @@ print(f"Model name:\t{config_baseline['name']}")
 print(f"Learning rate:\t{config_baseline['lr']}")
 print(f"Batch size:\t{config_baseline['batch_size']}")
 
-train_dataloader = TrafficVolumeDataLoader(train_data_file, batch_size, num_workers, random_seed=0, shuffle=True, drop_last=True)
-val_dataloader = TrafficVolumeDataLoader(val_data_file, batch_size, num_workers, random_seed=0, shuffle=False, drop_last=False)
-test_dataloader = TrafficVolumeDataLoader(test_data_file, batch_size, num_workers, random_seed=0, shuffle=False, drop_last=False)
+train_dataloader = TrafficVolumeDataLoader(train_data_file, batch_size, num_workers, shuffle=True, drop_last=True)
+val_dataloader = TrafficVolumeDataLoader(val_data_file, batch_size, num_workers, shuffle=False, drop_last=False)
+test_dataloader = TrafficVolumeDataLoader(test_data_file, batch_size, num_workers, shuffle=False, drop_last=False)
 
 val_steps = len(train_dataloader) // validations_per_epoch 
 

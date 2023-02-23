@@ -15,6 +15,8 @@ time_series_file = join(data_path, "time_series_data.pkl")
 train_data_file = join(data_path, "time_series_train.pkl")
 val_data_file = join(data_path, "time_series_val.pkl")
 test_data_file = join(data_path, "time_series_test.pkl")
+graph_file = join(data_path, "graph.pkl")
+stations_included_file = join(data_path, "stations_included.csv")
 
 # Pre-processing
 min_number_of_observations = 1500   # Drop stations having too few observations
