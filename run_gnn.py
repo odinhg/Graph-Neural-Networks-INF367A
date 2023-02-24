@@ -13,13 +13,18 @@ from torch.optim import Adam
 from torchinfo import summary
 
 from torch_geometric.nn import GCN, GCNConv, Sequential, GATConv
+from torch_geometric.profile import get_model_size, count_parameters
 
 class GCNModel(nn.Module):
     def __init__(self, num_node_features=4):
         super().__init__()
-        self.conv1 = GCNConv(num_node_features, 128) 
-        self.conv2 = GCNConv(128, 64)
-        self.conv3 = GCNConv(64, 1)
+        self.conv1 = GCNConv(num_node_features, 512) 
+        self.conv2 = GCNConv(512, 256)
+        self.conv3 = GCNConv(256, 256)
+        self.conv4 = GCNConv(256, 256)
+        self.conv5 = GCNConv(256, 256)
+        self.conv6 = GCNConv(256, 256)
+        self.conv7 = GCNConv(256, 1)
 
     def forward(self, data):
         x, edge_index, edge_weight = data.x, data.edge_index, data.edge_weight
@@ -29,6 +34,14 @@ class GCNModel(nn.Module):
         x = self.conv2(x, edge_index, edge_weight)
         x = x.relu() 
         x = self.conv3(x, edge_index, edge_weight)
+        x = x.relu() 
+        x = self.conv4(x, edge_index, edge_weight)
+        x = x.relu() 
+        x = self.conv5(x, edge_index, edge_weight)
+        x = x.relu() 
+        x = self.conv6(x, edge_index, edge_weight)
+        x = x.relu() 
+        x = self.conv7(x, edge_index, edge_weight)
         return x
 
 if "cuda" in device and not torch.cuda.is_available():
@@ -52,6 +65,9 @@ optimizer = Adam(model.parameters(), lr=lr)
 earlystopper = EarlyStopper(limit=config_baseline["earlystop_limit"])
 
 train_history = {"train_loss" : [], "val_loss" : []}
+
+print(f"Model size: {get_model_size(model)/2**20:.2f} MB")
+print(f"Parameters: {count_parameters(model)}")
 
 for epoch in range(epochs):
     train_losses = []
