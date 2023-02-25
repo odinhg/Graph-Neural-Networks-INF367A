@@ -42,9 +42,52 @@ Listing the timestamps where all stations are missing data (all NaN rows) we see
 
 When first training the baseline model, there was a big spike in the training loss happening once every epoch. Monitoring the training loss, the observation(s) causing the spike were tracked down.
 
+**Normalization**
+Normalization can be set in the config file before running the pre-processing script. 
+
+"minmax" (scaling data to values in the range 0-1), 
+"normal" (computing z-scores) and no normalzation.
+
+
+
+
 ### The baseline model
 
+The baseline model consists of a fully connected neural network with five linear layers, batch normalization and ReLU
+activation functions.
+
+|**Optimizer**|Adam|
+|**Learning rate**|0.001|
+|**Batch size**|128|
+|**Loss function**|L1-loss (MAE)|
+|**Parameters**|494015 (1.98 MB)|
+
+Training early stopped at epoch # (total training time: #h#m#s).
+
+The following figure shows the training and validation loss during training:
+![Loss plot for baseline model](./figs/baseline_training_plot.png)
+
+The following figure shows the baseline model's traffic predictions for three stations (using data from the test set):
+![Example predictions for baseline model](./figs/baseline_prediction_plot.png)
+
+The baseline model obtained a MAE (mean absolute error) of nn.nn on the test dataset.
 
 ### The graph nerural network model
+
+The graph neural network is set-up to do node regression. The model consists of five GraphConv layers with ReLU
+activation functions in-between each layer.
+
+|**Optimizer**|Adam|
+|**Learning rate**|0.001|
+|**Batch size**|128|
+|**Loss function**|L1-loss|
+|**Parameters**|396801 (1.52 MB)|
+
+### Graph features
+Graph data is stored in PyG's `Data` object. 
+Graph (edge_index): manually determined by traffic expert (that's me!)
+Node features (x): traffic volumes at each node at time (m,d,h) and the time.
+Edge features (edge_weight): (1/exp(geodesic(i,j))) closer nodes have edges with higher weights
+Target (y): Traffic volumes for each node at time (m,d,h+1)
 
 

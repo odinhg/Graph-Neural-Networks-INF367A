@@ -29,7 +29,7 @@ num_workers = 8                     # Number of workers to use with dataloader.
 device = "cuda:4"                   # Device for PyTorch to use. Can be "cpu" or "cuda:n".
 validations_per_epoch = 4           # How many time to do validation per epoch.
 
-# Baseline model
+# Baseline model config
 config_baseline = {}
 config_baseline["name"] = "Baseline"
 config_baseline["batch_size"] = 128 
@@ -37,4 +37,15 @@ config_baseline["lr"] = 0.001
 config_baseline["epochs"] = 100
 config_baseline["checkpoint_file"] = join(checkpoints_path, "baseline.pth") 
 config_baseline["prediction_plot_file"] = join(figs_path, "baseline_prediction_plot.png")
-config_baseline["earlystop_limit"] = 15
+config_baseline["earlystop_limit"] = 20 
+
+
+# GNN model config
+config_gnn = {}
+config_gnn["name"] = "GNN"
+config_gnn["batch_size"] = 128 
+config_gnn["lr"] = 0.001
+config_gnn["epochs"] = 100
+config_gnn["checkpoint_file"] = join(checkpoints_path, "gnn.pth") 
+config_gnn["prediction_plot_file"] = join(figs_path, "gnn_prediction_plot.png")
+config_gnn["earlystop_limit"] = 20 

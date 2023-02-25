@@ -78,7 +78,7 @@ def create_edge_index_and_features(stations_included_file, graph_file, stations_
                 start_indices.append(i)
                 end_indices.append(j)
                 # Add edge weights
-                edge_feature = 1 / (distance_matrix[i,j] + 0.0001)
+                edge_feature = np.exp(-distance_matrix[i,j])
                 edge_features.append(edge_feature)
 
     edge_index = torch.tensor([start_indices, end_indices], dtype=torch.long)

@@ -10,21 +10,23 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 from torch.optim import Adam
+from torch.optim.lr_scheduler import StepLR
 from torchinfo import summary
 
-from torch_geometric.nn import GCN, GCNConv, Sequential, GATConv
+from torch_geometric.nn import Sequential, GraphConv
+from torch_geometric.nn.norm import BatchNorm
 from torch_geometric.profile import get_model_size, count_parameters
+
+from models import GNNModel
 
 class GCNModel(nn.Module):
     def __init__(self, num_node_features=4):
         super().__init__()
-        self.conv1 = GCNConv(num_node_features, 512) 
-        self.conv2 = GCNConv(512, 256)
-        self.conv3 = GCNConv(256, 256)
-        self.conv4 = GCNConv(256, 256)
-        self.conv5 = GCNConv(256, 256)
-        self.conv6 = GCNConv(256, 256)
-        self.conv7 = GCNConv(256, 1)
+        self.conv1 = GraphConv(num_node_features, 256) 
+        self.conv2 = GraphConv(256, 256)
+        self.conv3 = GraphConv(256, 256)
+        self.conv4 = GraphConv(256, 256)
+        self.conv5 = GraphConv(256, 1)
 
     def forward(self, data):
         x, edge_index, edge_weight = data.x, data.edge_index, data.edge_weight
@@ -38,11 +40,7 @@ class GCNModel(nn.Module):
         x = self.conv4(x, edge_index, edge_weight)
         x = x.relu() 
         x = self.conv5(x, edge_index, edge_weight)
-        x = x.relu() 
-        x = self.conv6(x, edge_index, edge_weight)
-        x = x.relu() 
-        x = self.conv7(x, edge_index, edge_weight)
-        return x
+        return x.squeeze(1)
 
 if "cuda" in device and not torch.cuda.is_available():
     print(f"Warning: Device set to {device} in config but no GPU available. Using CPU instead.")
@@ -53,15 +51,16 @@ lr = 0.001
 batch_size = 128 
 epochs = config_baseline["epochs"]
 
-train_dataloader = TrafficVolumeGraphDataLoader(train_data_file, stations_data_file, stations_included_file, graph_file, batch_size=batch_size, num_workers=num_workers, shuffle=True, drop_last=True)
-val_dataloader = TrafficVolumeGraphDataLoader(val_data_file, stations_data_file, stations_included_file, graph_file, batch_size=batch_size, num_workers=num_workers, shuffle=False, drop_last=False)
-test_dataloader = TrafficVolumeGraphDataLoader(test_data_file, stations_data_file, stations_included_file, graph_file, batch_size=batch_size, num_workers=num_workers, shuffle=False, drop_last=False)
+train_dataloader = TrafficVolumeGraphDataLoader(train_data_file, stations_data_file, stations_included_file, graph_file, batch_size=batch_size, num_workers=num_workers, shuffle=True)
+val_dataloader = TrafficVolumeGraphDataLoader(val_data_file, stations_data_file, stations_included_file, graph_file, batch_size=batch_size, num_workers=num_workers)
+test_dataloader = TrafficVolumeGraphDataLoader(test_data_file, stations_data_file, stations_included_file, graph_file, batch_size=batch_size, num_workers=num_workers)
 
 val_steps = len(train_dataloader) // validations_per_epoch 
 
-model = GCNModel().to(device)
+model = GNNModel().to(device)
 loss_function = nn.L1Loss()
 optimizer = Adam(model.parameters(), lr=lr) 
+scheduler = StepLR(optimizer, step_size=40, gamma=0.5)
 earlystopper = EarlyStopper(limit=config_baseline["earlystop_limit"])
 
 train_history = {"train_loss" : [], "val_loss" : []}
@@ -76,7 +75,7 @@ for epoch in range(epochs):
         
         # Train step
         optimizer.zero_grad()
-        pred = model(data).squeeze(1)
+        pred = model(data)
         loss = loss_function(pred, data.y)
         loss.backward()
         optimizer.step()
@@ -90,7 +89,7 @@ for epoch in range(epochs):
             with torch.no_grad():
                 for data in val_dataloader:
                     data = data.to(device)
-                    preds = model(data).squeeze(1)
+                    preds = model(data)
                     val_loss = loss_function(preds, data.y).item()
                     val_losses.append(val_loss)
             mean_val_loss = np.mean(val_losses)
@@ -105,6 +104,7 @@ for epoch in range(epochs):
     else:
         continue
     break   # Break on early stop
+    #scheduler.step()
 
 # Save loss plot
 fig, axes = plt.subplots(nrows=1, ncols=2)
