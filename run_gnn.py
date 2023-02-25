@@ -1,5 +1,5 @@
 from config import *
-from models import BaseLineModel
+from models import GNNModel
 from utils import TrafficVolumeGraphDataLoader, EarlyStopper
 
 from os.path import isfile
@@ -13,34 +13,8 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import StepLR
 from torchinfo import summary
 
-from torch_geometric.nn import Sequential, GraphConv
-from torch_geometric.nn.norm import BatchNorm
 from torch_geometric.profile import get_model_size, count_parameters
 
-from models import GNNModel
-
-class GCNModel(nn.Module):
-    def __init__(self, num_node_features=4):
-        super().__init__()
-        self.conv1 = GraphConv(num_node_features, 256) 
-        self.conv2 = GraphConv(256, 256)
-        self.conv3 = GraphConv(256, 256)
-        self.conv4 = GraphConv(256, 256)
-        self.conv5 = GraphConv(256, 1)
-
-    def forward(self, data):
-        x, edge_index, edge_weight = data.x, data.edge_index, data.edge_weight
-        x = self.conv1(x, edge_index, edge_weight)
-        x = x.relu() 
-        #x = F.dropout(x, p=0.5, training=self.training)
-        x = self.conv2(x, edge_index, edge_weight)
-        x = x.relu() 
-        x = self.conv3(x, edge_index, edge_weight)
-        x = x.relu() 
-        x = self.conv4(x, edge_index, edge_weight)
-        x = x.relu() 
-        x = self.conv5(x, edge_index, edge_weight)
-        return x.squeeze(1)
 
 if "cuda" in device and not torch.cuda.is_available():
     print(f"Warning: Device set to {device} in config but no GPU available. Using CPU instead.")
@@ -68,6 +42,7 @@ train_history = {"train_loss" : [], "val_loss" : []}
 print(f"Model size: {get_model_size(model)/2**20:.2f} MB")
 print(f"Parameters: {count_parameters(model)}")
 
+"""
 for epoch in range(epochs):
     train_losses = []
     for i, data in enumerate((pbar := tqdm(train_dataloader))):
@@ -116,4 +91,4 @@ axes[1].title.set_text("Validation L1-Loss")
 axes[1].set_yscale('log')
 fig.tight_layout()
 plt.savefig("figs/gnn_training_plot.png", dpi=200)
-
+"""
