@@ -22,7 +22,7 @@ class Trainer():
         self.val_steps = len(train_dataloader) // config["val_per_epoch"]
         self.earlystopper = EarlyStopper(limit=config["earlystop_limit"])
         self.train_history = {"train_loss" : [], "val_loss" : []}
-        
+
     def train_step(self, data):
         X, y = self.get_data_and_targets(data)
         self.optimizer.zero_grad()
@@ -33,6 +33,7 @@ class Trainer():
         return loss.item()
 
     def train(self):
+        print(f"Training model...")
         for epoch in range(self.epochs):
             train_losses = []
             for i, data in enumerate((pbar := tqdm(self.train_dataloader))):
@@ -92,6 +93,21 @@ class Trainer():
         axes[1].set_yscale('log')
         fig.tight_layout()
         plt.savefig(self.loss_plot_file, dpi=200)
+
+    def evaluate(self, test_dataloader):
+        print("Loading checkpoint...")
+        self.model.load_state_dict(torch.load(self.checkpoint_file))
+        self.model.eval()
+        print("Evaluating model on test data...")
+        with torch.no_grad():
+            test_losses = []
+            for data in tqdm(test_dataloader): 
+                X, y = self.get_data_and_targets(data) 
+                preds = self.model(X)
+                test_loss = self.loss_function(preds, y)
+                test_losses.append(test_loss.item())
+            mean_test_loss = np.mean(test_losses)
+        print(f"Test Loss: {mean_test_loss:.4f}")
 
 class BaselineTrainer(Trainer):
     def get_data_and_targets(self, data):

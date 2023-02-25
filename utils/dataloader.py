@@ -89,9 +89,9 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
     """
         Modified dataset for use with PyTorch Geometric GNN
     """
-    def __init__(self, datafile, stations_data_file, stations_included_file, graph_file):
+    def __init__(self, datafile, edge_index, edge_weight):
         super().__init__(datafile)
-        self.edge_index, self.edge_weight = create_edge_index_and_features(stations_included_file, graph_file, stations_data_file)
+        self.edge_index, self.edge_weight = edge_index, edge_weight
         self.transform = GT.Compose([GT.ToUndirected()])
 
     def __getitem__(self, index):
@@ -108,8 +108,8 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
         data = self.transform(data)
         return data
 
-def TrafficVolumeGraphDataLoader(datafile, stations_data_file, stations_included_file, graph_file, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
-    dataset = TrafficVolumeGraphDataSet(datafile, stations_data_file, stations_included_file, graph_file)
+def TrafficVolumeGraphDataLoader(datafile, edge_index, edge_weight, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
+    dataset = TrafficVolumeGraphDataSet(datafile, edge_index, edge_weight)
     dataloader = torch_geometric.loader.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last)
     return dataloader
 
