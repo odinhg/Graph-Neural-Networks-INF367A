@@ -22,6 +22,8 @@ class Trainer():
         self.val_steps = len(train_dataloader) // config["val_per_epoch"]
         self.earlystopper = EarlyStopper(limit=config["earlystop_limit"])
         self.train_history = {"train_loss" : [], "val_loss" : []}
+        self.predictions = None
+        self.ground_truth = None
 
     def train_step(self, data):
         X, y = self.get_data_and_targets(data)
@@ -94,7 +96,7 @@ class Trainer():
         fig.tight_layout()
         plt.savefig(self.loss_plot_file, dpi=200)
 
-    def evaluate(self, test_dataloader):
+    def evaluate(self, test_dataloader, store_predictions=True):
         print("Loading checkpoint...")
         self.model.load_state_dict(torch.load(self.checkpoint_file))
         self.model.eval()
@@ -106,8 +108,20 @@ class Trainer():
                 preds = self.model(X)
                 test_loss = self.loss_function(preds, y)
                 test_losses.append(test_loss.item())
+                # TODO: save predictions here
             mean_test_loss = np.mean(test_losses)
         print(f"Test Loss: {mean_test_loss:.4f}")
+
+    def batch_to_numpy(self, data, preds):
+        pass
+
+    def save_prediction_plot(self, station_indices, from_index, length):
+        # TODO save plot of predictions and ground truth on test data
+        # for stations given by list station_indices
+        # from sample (index) from_index
+        # to from_index + length
+        # nice for visualization
+        pass
 
 class BaselineTrainer(Trainer):
     def get_data_and_targets(self, data):
@@ -116,6 +130,10 @@ class BaselineTrainer(Trainer):
     def print_model_size(self):
         summary(self.model, (self.batch_size, 98))
 
+    def batch_to_numpy(self, data, preds):
+        # Return ground truth and predictions for single mini-batch
+        return data[1].cpu().detach().numpy(), preds.cpu().detach().numpy()
+
 class GNNTrainer(Trainer):
     def get_data_and_targets(self, data):
         return data.to(self.device), data.y.to(self.device)
@@ -123,3 +141,13 @@ class GNNTrainer(Trainer):
     def print_model_size(self):
         print(f"Model size: {get_model_size(self.model)/2**20:.2f} MB")
         print(f"Parameters: {count_parameters(self.model)}")
+
+    def batch_to_numpy(self, data, preds):
+        # Return ground truth and predictions for single mini-batch
+        # Note: we need to take extra care because PyG merges mini-batches into one large graph.
+        for i in range(len(data.ptr) - 1):
+            batch = data.x[data.ptr[i]:data.ptr[i+1]]
+            print(batch.shape)
+            # TODO: Change node features to only contain traffic volume data
+            # by using MetaLayer so we can use a global model to take in the time/date data
+            # Then make this function return predicted traffic volumes from the entire batch

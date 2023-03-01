@@ -99,12 +99,18 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
         data_now = self.df.iloc[index].replace(np.nan, -1)
         data_next = self.df.iloc[index + 1].replace(np.nan, -1)
 
-        datetime = torch.Tensor(self.convert_time(data_now)).repeat(data_now.shape[0], 1)
+        datetime = torch.Tensor(self.convert_time(data_now))
         volumes = torch.Tensor(data_now.to_numpy(dtype=np.float32)).reshape(-1, 1)
         y = torch.Tensor(data_next.to_numpy(dtype=np.float32))
-        x = torch.cat((volumes, datetime), dim=1)
 
-        data = Data(x=x, edge_index=self.edge_index, edge_weight=self.edge_weight, y=y)
+        data = Data(x=volumes, edge_index=self.edge_index, edge_weight=self.edge_weight, y=y, u=datetime)
+        
+        # Old solution: embedding date and time as node features. (Now: use global model for time/date data...)
+        # datetime = torch.Tensor(self.convert_time(data_now)).repeat(data_now.shape[0], 1)
+        # ...
+        # x = torch.cat((volumes, datetime), dim=1)
+        # data = Data(x=x, edge_index=self.edge_index, edge_weight=self.edge_weight, y=y)
+        
         data = self.transform(data)
         return data
 
