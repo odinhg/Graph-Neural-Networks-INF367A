@@ -74,12 +74,12 @@ def create_edge_index_and_features(stations_included_file, graph_file, stations_
     for i in range(num_nodes):
         for j in range(i+1, num_nodes):
             if graph_df.iloc[i,j]:
-                # Add edge
-                start_indices.append(i)
-                end_indices.append(j)
+                # Add edge (both directions)
+                start_indices.extend([i,j])
+                end_indices.extend([j,i])
                 # Add edge weights
                 edge_feature = np.exp(-distance_matrix[i,j])
-                edge_features.append(edge_feature)
+                edge_features.extend(2 * [[edge_feature]])
 
     edge_index = torch.tensor([start_indices, end_indices], dtype=torch.long)
     edge_features = torch.tensor(edge_features, dtype=torch.float32)
@@ -89,9 +89,9 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
     """
         Modified dataset for use with PyTorch Geometric GNN
     """
-    def __init__(self, datafile, edge_index, edge_weight):
+    def __init__(self, datafile, edge_index, edge_attr):
         super().__init__(datafile)
-        self.edge_index, self.edge_weight = edge_index, edge_weight
+        self.edge_index, self.edge_attr = edge_index, edge_attr
         self.transform = GT.Compose([GT.ToUndirected()])
 
     def __getitem__(self, index):
@@ -99,11 +99,11 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
         data_now = self.df.iloc[index].replace(np.nan, -1)
         data_next = self.df.iloc[index + 1].replace(np.nan, -1)
 
-        datetime = torch.Tensor(self.convert_time(data_now))
-        volumes = torch.Tensor(data_now.to_numpy(dtype=np.float32)).reshape(-1, 1)
+        datetime = torch.Tensor(self.convert_time(data_now)).reshape(1, 3)
+        volumes = torch.Tensor(data_now.to_numpy(dtype=np.float32)).unsqueeze(1)
         y = torch.Tensor(data_next.to_numpy(dtype=np.float32))
 
-        data = Data(x=volumes, edge_index=self.edge_index, edge_weight=self.edge_weight, y=y, u=datetime)
+        data = Data(x=volumes, edge_index=self.edge_index, edge_attr=self.edge_attr, y=y, u=datetime)
         
         # Old solution: embedding date and time as node features. (Now: use global model for time/date data...)
         # datetime = torch.Tensor(self.convert_time(data_now)).repeat(data_now.shape[0], 1)
@@ -111,11 +111,11 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
         # x = torch.cat((volumes, datetime), dim=1)
         # data = Data(x=x, edge_index=self.edge_index, edge_weight=self.edge_weight, y=y)
         
-        data = self.transform(data)
+        #data = self.transform(data)
         return data
 
-def TrafficVolumeGraphDataLoader(datafile, edge_index, edge_weight, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
-    dataset = TrafficVolumeGraphDataSet(datafile, edge_index, edge_weight)
+def TrafficVolumeGraphDataLoader(datafile, edge_index, edge_attr, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
+    dataset = TrafficVolumeGraphDataSet(datafile, edge_index, edge_attr)
     dataloader = torch_geometric.loader.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last)
     return dataloader
 
