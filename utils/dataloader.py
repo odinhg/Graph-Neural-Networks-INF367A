@@ -87,15 +87,16 @@ def create_edge_index_and_features(stations_included_file, graph_file, stations_
 
 class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
     """
-        Modified dataset for use with PyTorch Geometric GNN
+        Modified dataset for use with PyTorch Geometric GNN.
     """
     def __init__(self, datafile, edge_index, edge_attr):
         super().__init__(datafile)
         self.edge_index, self.edge_attr = edge_index, edge_attr
-        self.transform = GT.Compose([GT.ToUndirected()])
 
     def __getitem__(self, index):
-        # Return PyTorch Geometric Data object with node features, edge index, edge attributes (features) and ground truth
+        """
+        Return PyG Data object with node, edge and graph features.
+        """
         data_now = self.df.iloc[index].replace(np.nan, -1)
         data_next = self.df.iloc[index + 1].replace(np.nan, -1)
 
@@ -105,13 +106,6 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
 
         data = Data(x=volumes, edge_index=self.edge_index, edge_attr=self.edge_attr, y=y, u=datetime)
         
-        # Old solution: embedding date and time as node features. (Now: use global model for time/date data...)
-        # datetime = torch.Tensor(self.convert_time(data_now)).repeat(data_now.shape[0], 1)
-        # ...
-        # x = torch.cat((volumes, datetime), dim=1)
-        # data = Data(x=x, edge_index=self.edge_index, edge_weight=self.edge_weight, y=y)
-        
-        #data = self.transform(data)
         return data
 
 def TrafficVolumeGraphDataLoader(datafile, edge_index, edge_attr, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
