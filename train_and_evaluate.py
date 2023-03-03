@@ -47,6 +47,6 @@ if __name__ == "__main__":
 
     # Make some prediction and save plot
     station_indices = [9,93,17] # Indices of stations to plot
-    from_index = 5600 
-    length = 800 
+    from_index = 8000 
+    length = 2000
     trainer.save_prediction_plot(station_indices, from_index, length)
