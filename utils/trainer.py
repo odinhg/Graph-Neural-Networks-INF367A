@@ -111,24 +111,24 @@ class Trainer():
                 test_losses.append(test_loss.item())
 
                 # Save ground truth and predictions for later use
-                gt_list, pred_list = self.batch_to_numpy(data, preds)
+                gt_list, pred_list = self.batch_to_list(data, preds)
                 self.ground_truth.extend(gt_list)
                 self.predictions.extend(pred_list)
 
             self.ground_truth = np.array(self.ground_truth)
             self.predictions = np.array(self.predictions)
             mean_test_loss = np.mean(test_losses)
+
         print(f"Test Loss: {mean_test_loss:.4f}")
 
-    def batch_to_numpy(self, data, preds):
+    def batch_to_list(self, data, preds):
         pass
 
     def save_prediction_plot(self, station_indices, from_index, length):
+        # Plots predictions and ground truth for stations with indices in station_indices
         preds = self.predictions[from_index:from_index+length, :]
         truth = self.ground_truth[from_index:from_index+length, :]
-
         fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(12,10))
-
         for i,j in enumerate(station_indices):
             axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
             axes[i].plot(preds[:, i], label="Predicted", c="red", alpha=0.5)
@@ -137,7 +137,6 @@ class Trainer():
         fig.tight_layout()
         plt.savefig(self.prediction_plot_file, dpi=100)
 
-
 class BaselineTrainer(Trainer):
     def get_data_and_targets(self, data):
         return data[0].to(self.device), data[1].to(self.device) 
@@ -145,7 +144,7 @@ class BaselineTrainer(Trainer):
     def print_model_size(self):
         summary(self.model, (self.batch_size, 98))
 
-    def batch_to_numpy(self, data, preds):
+    def batch_to_list(self, data, preds):
         # Return ground truth and predictions for single mini-batch
         return data[1].tolist(), preds.detach().cpu().tolist()
 
@@ -157,12 +156,9 @@ class GNNTrainer(Trainer):
         print(f"Model size: {get_model_size(self.model)/2**20:.2f} MB")
         print(f"Parameters: {count_parameters(self.model)}")
 
-    def batch_to_numpy(self, data, preds):
+    def batch_to_list(self, data, preds):
         # Return ground truth and predictions for single mini-batch
         # Note: we need to take extra care because PyG merges mini-batches into one large graph.
-        for i in range(len(data.ptr) - 1):
-            batch = data.x[data.ptr[i]:data.ptr[i+1]]
-            print(batch.shape)
-            # TODO: Change node features to only contain traffic volume data
-            # by using MetaLayer so we can use a global model to take in the time/date data
-            # Then make this function return predicted traffic volumes from the entire batch
+        gt_list = [data.y[data.ptr[j]:data.ptr[j+1]].tolist() for j in range(len(data.ptr) - 1)]
+        pred_list = [preds[data.ptr[j]:data.ptr[j+1]].tolist() for j in range(len(data.ptr) - 1)]
+        return gt_list, pred_list
