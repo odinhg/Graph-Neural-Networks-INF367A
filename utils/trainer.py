@@ -16,14 +16,15 @@ class Trainer():
         self.epochs = config["epochs"]
         self.loss_plot_file = config["loss_plot_file"]
         self.checkpoint_file = config["checkpoint_file"]
+        self.prediction_plot_file = config["prediction_plot_file"]
         self.loss_function = loss_function
         self.optimizer = optimizer
         self.device = device
         self.val_steps = len(train_dataloader) // config["val_per_epoch"]
         self.earlystopper = EarlyStopper(limit=config["earlystop_limit"])
         self.train_history = {"train_loss" : [], "val_loss" : []}
-        self.predictions = None
-        self.ground_truth = None
+        self.predictions = [] 
+        self.ground_truth = []
 
     def train_step(self, data):
         X, y = self.get_data_and_targets(data)
@@ -108,7 +109,14 @@ class Trainer():
                 preds = self.model(X)
                 test_loss = self.loss_function(preds, y)
                 test_losses.append(test_loss.item())
-                # TODO: save predictions here
+
+                # Save ground truth and predictions for later use
+                gt_list, pred_list = self.batch_to_numpy(data, preds)
+                self.ground_truth.extend(gt_list)
+                self.predictions.extend(pred_list)
+
+            self.ground_truth = np.array(self.ground_truth)
+            self.predictions = np.array(self.predictions)
             mean_test_loss = np.mean(test_losses)
         print(f"Test Loss: {mean_test_loss:.4f}")
 
@@ -116,12 +124,19 @@ class Trainer():
         pass
 
     def save_prediction_plot(self, station_indices, from_index, length):
-        # TODO save plot of predictions and ground truth on test data
-        # for stations given by list station_indices
-        # from sample (index) from_index
-        # to from_index + length
-        # nice for visualization
-        pass
+        preds = self.predictions[from_index:from_index+length, :]
+        truth = self.ground_truth[from_index:from_index+length, :]
+
+        fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(20,10))
+
+        for i,j in enumerate(station_indices):
+            axes[i].plot(self.ground_truth[:, i], label="True", c="blue", alpha=0.5)
+            axes[i].plot(self.predictions[:, i], label="Predicted", c="red", alpha=0.5)
+            #axes[i].title.set_text(f"Traffic station {station_names[i]}")
+            axes[i].legend()
+        fig.tight_layout()
+        plt.savefig(self.prediction_plot_file, dpi=100)
+
 
 class BaselineTrainer(Trainer):
     def get_data_and_targets(self, data):
@@ -132,7 +147,7 @@ class BaselineTrainer(Trainer):
 
     def batch_to_numpy(self, data, preds):
         # Return ground truth and predictions for single mini-batch
-        return data[1].cpu().detach().numpy(), preds.cpu().detach().numpy()
+        return data[1].tolist(), preds.detach().cpu().tolist()
 
 class GNNTrainer(Trainer):
     def get_data_and_targets(self, data):
