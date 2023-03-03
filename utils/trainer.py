@@ -127,7 +127,7 @@ class Trainer():
         preds = self.predictions[from_index:from_index+length, :]
         truth = self.ground_truth[from_index:from_index+length, :]
 
-        fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(20,10))
+        fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(10,10))
 
         for i,j in enumerate(station_indices):
             axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
