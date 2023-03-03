@@ -130,8 +130,8 @@ class Trainer():
         fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(20,10))
 
         for i,j in enumerate(station_indices):
-            axes[i].plot(self.ground_truth[:, i], label="True", c="blue", alpha=0.5)
-            axes[i].plot(self.predictions[:, i], label="Predicted", c="red", alpha=0.5)
+            axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
+            axes[i].plot(preds[:, i], label="Predicted", c="red", alpha=0.5)
             #axes[i].title.set_text(f"Traffic station {station_names[i]}")
             axes[i].legend()
         fig.tight_layout()
