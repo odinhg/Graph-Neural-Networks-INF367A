@@ -134,9 +134,13 @@ class Trainer():
         preds = self.test_results["predictions"][from_index:from_index+length, :]
         truth = self.test_results["ground_truth"][from_index:from_index+length, :]
         timestamps = self.test_dataloader.dataset.timestamps[from_index:from_index+length]
+        # Which traffic stations to save prediction plots for
+        station_indices = [1, 20, 36, 56, 62, 65, 71, 74, 79, 84]
+        station_ids = self.test_dataloader.dataset.column_names[station_indices]
+
         Path(self.prediction_plot_dir).mkdir(exist_ok=True)
         fig, ax = plt.subplots(figsize=(12,6))
-        for i, station_id in tqdm(enumerate(self.test_dataloader.dataset.column_names)):
+        for i, station_id in zip(station_indices, station_ids): 
             ax.plot(timestamps, truth[:, i], label="Ground truth", c="blue", alpha=0.7)
             ax.plot(timestamps, preds[:, i], label="Predicted", c="red", alpha=0.7)
             ax.set_xlabel("Timestamp")
