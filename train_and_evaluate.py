@@ -24,7 +24,7 @@ if __name__ == "__main__":
         test_dataloader = TrafficVolumeGraphDataLoader(test_data_file, edge_index, edge_weight, batch_size, num_workers)
         loss_function = nn.L1Loss()
         optimizer = torch.optim.Adam(model.parameters(), lr=lr) 
-        trainer = GNNTrainer(model, train_dataloader, val_dataloader, config, loss_function, optimizer, device)
+        trainer = GNNTrainer(model, train_dataloader, val_dataloader, test_dataloader, config, loss_function, optimizer, device)
     elif name == "Baseline":
         model = BaseLineModel()
         train_dataloader = TrafficVolumeDataLoader(train_data_file, batch_size, num_workers, shuffle=True)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         test_dataloader = TrafficVolumeDataLoader(test_data_file, batch_size, num_workers)
         loss_function = nn.L1Loss()
         optimizer = torch.optim.Adam(model.parameters(), lr=lr) 
-        trainer = BaselineTrainer(model, train_dataloader, val_dataloader, config, loss_function, optimizer, device)
+        trainer = BaselineTrainer(model, train_dataloader, val_dataloader, test_dataloader, config, loss_function, optimizer, device)
 
     trainer.print_model_size()
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         print("Checkpoint file exists. Please delete checkpoint file to re-train model.")
 
     # Evaluate model on test data and compute test loss
-    trainer.evaluate(test_dataloader)
+    trainer.evaluate()
 
     # Make some prediction and save plot
     station_indices = [9,93,17] # Indices of stations to plot

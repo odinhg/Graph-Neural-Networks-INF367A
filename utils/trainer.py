@@ -8,10 +8,11 @@ import matplotlib.pyplot as plt
 from .earlystopper import EarlyStopper
 
 class Trainer():
-    def __init__(self, model, train_dataloader, val_dataloader, config, loss_function, optimizer, device):
+    def __init__(self, model, train_dataloader, val_dataloader, test_dataloader, config, loss_function, optimizer, device):
         self.model = model.to(device)
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
+        self.test_dataloader = test_dataloader
         self.batch_size = config["batch_size"]
         self.epochs = config["epochs"]
         self.loss_plot_file = config["loss_plot_file"]
@@ -96,14 +97,14 @@ class Trainer():
         fig.tight_layout()
         plt.savefig(self.loss_plot_file, dpi=100)
 
-    def evaluate(self, test_dataloader, store_predictions=True):
+    def evaluate(self):
         print("Loading checkpoint...")
         self.model.load_state_dict(torch.load(self.checkpoint_file))
         self.model.eval()
         print("Evaluating model on test data...")
         with torch.no_grad():
             test_losses = []
-            for data in tqdm(test_dataloader): 
+            for data in tqdm(self.test_dataloader): 
                 X, y = self.get_data_and_targets(data) 
                 preds = self.model(X)
                 test_loss = self.loss_function(preds, y)
@@ -114,8 +115,8 @@ class Trainer():
                 self.test_results["ground_truth"].extend(gt_list)
                 self.test_results["predictions"].extend(pred_list)
 
-            #self.test_res= np.array(self.ground_truth)
-            #self.predictions = np.array(self.predictions)
+            for key in self.test_results.keys():
+                self.test_results[key] = np.asarray(self.test_results[key])
             mean_test_loss = np.mean(test_losses)
 
         print(f"Test Loss: {mean_test_loss:.4f}")
@@ -125,13 +126,14 @@ class Trainer():
 
     def save_prediction_plot(self, station_indices, from_index, length):
         # Plots predictions and ground truth for stations with indices in station_indices
-        preds = self.test_results["predictions"][from_index:from_index+length]
-        truth = self.test_results["ground_truth"][from_index:from_index+length]
+        preds = self.test_results["predictions"][from_index:from_index+length, :]
+        truth = self.test_results["ground_truth"][from_index:from_index+length, :]
         fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(12,10))
         for i,j in enumerate(station_indices):
-            axes[i].plot(truth[:][i], label="True", c="blue", alpha=0.5)
-            axes[i].plot(preds[:][i], label="Predicted", c="red", alpha=0.5)
-            #axes[i].title.set_text(f"Traffic station {station_names[i]}")
+            axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
+            axes[i].plot(preds[:, i], label="Predicted", c="red", alpha=0.5)
+            station_name = self.test_dataloader.dataset.get_column_name(j)
+            axes[i].title.set_text(f"Traffic station {station_name}")
             axes[i].legend(loc="upper right")
         fig.tight_layout()
         plt.savefig(self.prediction_plot_file, dpi=100)
