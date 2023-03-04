@@ -55,7 +55,7 @@ class GlobalModel(nn.Module):
         return out
 
 class GNNLayer(nn.Module):
-    def __init__(self, node_features=(1, 1), edge_features=(1, 1), graph_features=(3, 3), hidden_dims=(32, 32, 32)):
+    def __init__(self, node_features=(1, 1), edge_features=(1, 1), graph_features=(3, 3), hidden_dims=(32, 32, 32), use_edge_model=True):
         """
         Implementation of the GN block proposed in the paper Relational inductive biases, 
         
@@ -65,9 +65,13 @@ class GNNLayer(nn.Module):
         graph_features  : (graph features in, graph features_out)
         hidden_dims     : how many dimensions to use in the hidden layer of the MLPs of the
                           edge model, node model and the global model, respectively.
+        use_edge_model  : If true, edge features are updated.
         """
         super().__init__()
-        self.edge_model = EdgeModel(node_features, edge_features, graph_features, hidden_dims[0])
+        if use_edge_model:
+            self.edge_model = EdgeModel(node_features, edge_features, graph_features, hidden_dims[0])
+        else:
+            self.edge_model = None
         self.node_model = NodeModel(node_features, edge_features, graph_features, hidden_dims[1])
         self.global_model = GlobalModel(node_features, edge_features, graph_features, hidden_dims[2])
         self.layers = MetaLayer(self.edge_model, self.node_model, self.global_model)
@@ -77,22 +81,25 @@ class GNNLayer(nn.Module):
         return out
 
 class GNNModel(nn.Module):
-    def __init__(self):
+    def __init__(self, use_edge_model=True):
         super().__init__()
         node_feature_sizes = [1, 64, 64, 32, 16, 1]
-        edge_feature_sizes = [1, 32, 32, 16, 8, 1]
+        edge_feature_sizes = [1, 1, 1, 1, 1, 1]
         graph_feature_sizes = [3, 32, 32, 16, 8, 1]
         mlp_hidden_dims = (64, 128, 64) 
+
+        if not use_edge_model:
+            edge_feature_sizes = [1] * len(node_feature_sizes)
 
         assert len(node_feature_sizes) == len(edge_feature_sizes) == len(graph_feature_sizes), "Feature sizes does not match!"
 
         layers = []
         layer_header= "x, edge_index, edge_attr, u, batch -> x, edge_attr, u"
 
-        for j in range(len(node_feature_sizes)-1):
-            layer = GNNLayer(node_feature_sizes[j:j+2], edge_feature_sizes[j:j+2], graph_feature_sizes[j:j+2], mlp_hidden_dims)
+        # Add GNN layers to model
+        for j in range(len(node_feature_sizes) - 1):
+            layer = GNNLayer(node_feature_sizes[j:j+2], edge_feature_sizes[j:j+2], graph_feature_sizes[j:j+2], mlp_hidden_dims, use_edge_model)
             layers.append((layer, layer_header))
-
         self.layers = Sequential("x, edge_index, edge_attr, u, batch", layers)
 
     def forward(self, data):

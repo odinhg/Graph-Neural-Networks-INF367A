@@ -17,6 +17,7 @@ if __name__ == "__main__":
     batch_size = config["batch_size"]
 
     if name == "GNN": 
+        # Graph NN with edge, node and graph models
         model = GNNModel()
         edge_index, edge_weight = create_edge_index_and_features(stations_included_file, graph_file, stations_data_file)
         train_dataloader = TrafficVolumeGraphDataLoader(train_data_file, edge_index, edge_weight, batch_size, num_workers, shuffle=True)
@@ -25,7 +26,18 @@ if __name__ == "__main__":
         loss_function = nn.L1Loss()
         optimizer = torch.optim.Adam(model.parameters(), lr=lr) 
         trainer = GNNTrainer(model, train_dataloader, val_dataloader, test_dataloader, config, loss_function, optimizer, device)
+    elif name == "GNN_NE":
+        # Graph NN with node and graph model
+        model = GNNModel(use_edge_model=False)
+        edge_index, edge_weight = create_edge_index_and_features(stations_included_file, graph_file, stations_data_file)
+        train_dataloader = TrafficVolumeGraphDataLoader(train_data_file, edge_index, edge_weight, batch_size, num_workers, shuffle=True)
+        val_dataloader = TrafficVolumeGraphDataLoader(val_data_file, edge_index, edge_weight, batch_size, num_workers)
+        test_dataloader = TrafficVolumeGraphDataLoader(test_data_file, edge_index, edge_weight, batch_size, num_workers)
+        loss_function = nn.L1Loss()
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr) 
+        trainer = GNNTrainer(model, train_dataloader, val_dataloader, test_dataloader, config, loss_function, optimizer, device)
     elif name == "Baseline":
+        # Baseline fully connected NN model
         model = BaseLineModel()
         train_dataloader = TrafficVolumeDataLoader(train_data_file, batch_size, num_workers, shuffle=True)
         val_dataloader = TrafficVolumeDataLoader(val_data_file, batch_size, num_workers)
@@ -46,7 +58,6 @@ if __name__ == "__main__":
     trainer.evaluate()
 
     # Make some prediction and save plot
-    station_indices = [9,93,17] # Indices of stations to plot
     from_index = 500 
     length = 500
-    trainer.save_prediction_plot(station_indices, from_index, length)
+    trainer.save_prediction_plot(from_index, length)

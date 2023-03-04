@@ -21,6 +21,7 @@ class TrafficVolumeDataSet(Dataset):
         self.df = pd.read_pickle(self.datafile)
         self.len = len(self.df) - 1 # Since there is no row after the last row.
         self.column_names = self.df.columns
+        self.timestamps = self.df.index
         print(f"Loaded datafile {self.datafile} with {self.len} rows...")
 
     def __getitem__(self, index):

@@ -4,6 +4,8 @@ import torch
 from torch_geometric.profile import get_model_size, count_parameters
 from torchinfo import summary
 import matplotlib.pyplot as plt
+from pathlib import Path
+from os.path import join
 
 from .earlystopper import EarlyStopper
 
@@ -17,7 +19,7 @@ class Trainer():
         self.epochs = config["epochs"]
         self.loss_plot_file = config["loss_plot_file"]
         self.checkpoint_file = config["checkpoint_file"]
-        self.prediction_plot_file = config["prediction_plot_file"]
+        self.prediction_plot_dir = config["prediction_plot_dir"]
         self.loss_function = loss_function
         self.optimizer = optimizer
         self.device = device
@@ -86,12 +88,13 @@ class Trainer():
     def print_model_size(self):
         pass
 
-    def save_loss_plot(self):
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 10))
+    def save_loss_plot(self, use_log_scale=True):
+        fig, ax = plt.subplots(figsize=(12, 6))
         ax.plot(self.train_history["train_loss"], label="Training")
         ax.plot(self.train_history["val_loss"], label="Validation")
-        #ax.set_yscale('log')
-        ax.set_xlabel("Steps")
+        if use_log_scale:
+            ax.set_yscale('log')
+        ax.set_xlabel("Step")
         ax.set_ylabel("Mean loss value")
         ax.legend(loc="upper right")
         fig.suptitle("Loss")
@@ -125,20 +128,25 @@ class Trainer():
     def batch_to_list(self, data, preds):
         pass
 
-    def save_prediction_plot(self, station_indices, from_index, length):
+    def save_prediction_plot(self, from_index, length):
         # Plots predictions and ground truth for stations with indices in station_indices
+        print(f"Saving prediction plots to directory {self.prediction_plot_dir}...")
         preds = self.test_results["predictions"][from_index:from_index+length, :]
         truth = self.test_results["ground_truth"][from_index:from_index+length, :]
-        timestamps = self.test_dataloader.dataset.df.index[from_index:from_index+length]
-        fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(12,10))
-        for i,j in enumerate(station_indices):
-            axes[i].plot(timestamps, truth[:, i], label="True", c="blue", alpha=0.5)
-            axes[i].plot(timestamps, preds[:, i], label="Predicted", c="red", alpha=0.5)
-            station_name = self.test_dataloader.dataset.df.columns[j]
-            axes[i].title.set_text(f"Traffic station {station_name}")
-            axes[i].legend(loc="upper right")
-        fig.tight_layout()
-        plt.savefig(self.prediction_plot_file, dpi=100)
+        timestamps = self.test_dataloader.dataset.timestamps[from_index:from_index+length]
+        Path(self.prediction_plot_dir).mkdir(exist_ok=True)
+        fig, ax = plt.subplots(figsize=(12,6))
+        for i, station_id in tqdm(enumerate(self.test_dataloader.dataset.column_names)):
+            ax.plot(timestamps, truth[:, i], label="Ground truth", c="blue", alpha=0.7)
+            ax.plot(timestamps, preds[:, i], label="Predicted", c="red", alpha=0.7)
+            ax.set_xlabel("Timestamp")
+            ax.set_ylabel("Traffic volume")
+            ax.legend(loc="upper right")
+            fig.suptitle(f"Traffic station {station_id}")
+            fig.tight_layout()
+            filename = join(self.prediction_plot_dir, f"{i:03}_{station_id}.png")
+            plt.savefig(filename, dpi=50)
+            plt.cla()
 
 class BaselineTrainer(Trainer):
     def get_data_and_targets(self, data):
