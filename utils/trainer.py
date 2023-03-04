@@ -87,13 +87,14 @@ class Trainer():
         pass
 
     def save_loss_plot(self):
-        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 10))
-        axes[0].plot(self.train_history["train_loss"])
-        axes[0].title.set_text("Training Loss")
-        axes[0].set_yscale('log')
-        axes[1].plot(self.train_history["val_loss"])
-        axes[1].title.set_text("Validation Loss")
-        axes[1].set_yscale('log')
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 10))
+        ax.plot(self.train_history["train_loss"], label="Training")
+        ax.plot(self.train_history["val_loss"], label="Validation")
+        #ax.set_yscale('log')
+        ax.set_xlabel("Steps")
+        ax.set_ylabel("Mean loss value")
+        ax.legend(loc="upper right")
+        fig.suptitle("Loss")
         fig.tight_layout()
         plt.savefig(self.loss_plot_file, dpi=100)
 
