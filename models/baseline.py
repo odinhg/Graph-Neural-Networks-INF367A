@@ -22,7 +22,6 @@ class BaseLineModel(nn.Module):
                         nn.ReLU(),
 
                         nn.Linear(input_nodes, input_nodes-3),
-                        nn.ReLU()
                     )
         self.fcnn.apply(init_weights)
 
