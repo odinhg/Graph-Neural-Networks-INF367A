@@ -87,7 +87,7 @@ class Trainer():
         pass
 
     def save_loss_plot(self):
-        fig, axes = plt.subplots(nrows=1, ncols=2)
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 10))
         axes[0].plot(self.train_history["train_loss"])
         axes[0].title.set_text("Training Loss")
         axes[0].set_yscale('log')
@@ -95,7 +95,7 @@ class Trainer():
         axes[1].title.set_text("Validation Loss")
         axes[1].set_yscale('log')
         fig.tight_layout()
-        plt.savefig(self.loss_plot_file, dpi=200)
+        plt.savefig(self.loss_plot_file, dpi=100)
 
     def evaluate(self, test_dataloader, store_predictions=True):
         print("Loading checkpoint...")
@@ -133,7 +133,7 @@ class Trainer():
             axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
             axes[i].plot(preds[:, i], label="Predicted", c="red", alpha=0.5)
             #axes[i].title.set_text(f"Traffic station {station_names[i]}")
-            axes[i].legend()
+            axes[i].legend(loc="upper right")
         fig.tight_layout()
         plt.savefig(self.prediction_plot_file, dpi=100)
 
