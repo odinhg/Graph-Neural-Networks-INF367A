@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # All stations are missing values at 22:00 every day. 
     # Replace these all-NaN rows by the mean of the row before and the row after.
     print("Filling rows with all NaN...")
-    time_series_data.loc[time_series_data.isnull().all(axis=1), :] = (time_series_data.ffill() + time_series_data.bfill()) / 2
+    time_series_data.loc[time_series_data.isnull().all(axis=1), :] = (time_series_data.ffill(limit=1) + time_series_data.bfill(limit=1)) / 2
 
     # Split the dataset into training, validation and testing data
     n_total = len(time_series_data)
