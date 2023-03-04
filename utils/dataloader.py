@@ -47,13 +47,6 @@ class TrafficVolumeDataSet(Dataset):
         hour = timestamp.hour
         return [month, weekday, hour]
     
-    def get_timestamp(self, index):
-        return self.df.index[index]
-
-    def get_column_name(self, col):
-        return self.df.columns[col]
-
-
 def TrafficVolumeDataLoader(datafile, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
     dataset = TrafficVolumeDataSet(datafile)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last)

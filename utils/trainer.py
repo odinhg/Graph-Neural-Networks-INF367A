@@ -24,7 +24,7 @@ class Trainer():
         self.val_steps = len(train_dataloader) // config["val_per_epoch"]
         self.earlystopper = EarlyStopper(limit=config["earlystop_limit"])
         self.train_history = {"train_loss" : [], "val_loss" : []}
-        self.test_results = {"timestamps" : [], "predictions" : [], "ground_truth" : []}
+        self.test_results = {"predictions" : [], "ground_truth" : []}
 
     def train_step(self, data):
         X, y = self.get_data_and_targets(data)
@@ -115,10 +115,10 @@ class Trainer():
                 self.test_results["ground_truth"].extend(gt_list)
                 self.test_results["predictions"].extend(pred_list)
 
-            for key in self.test_results.keys():
-                self.test_results[key] = np.asarray(self.test_results[key])
-            mean_test_loss = np.mean(test_losses)
+        for key in self.test_results.keys():
+            self.test_results[key] = np.asarray(self.test_results[key])
 
+        mean_test_loss = np.mean(test_losses)
         print(f"Test Loss: {mean_test_loss:.4f}")
 
     def batch_to_list(self, data, preds):
@@ -128,11 +128,12 @@ class Trainer():
         # Plots predictions and ground truth for stations with indices in station_indices
         preds = self.test_results["predictions"][from_index:from_index+length, :]
         truth = self.test_results["ground_truth"][from_index:from_index+length, :]
+        timestamps = self.test_dataloader.dataset.df.index[from_index:from_index+length]
         fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(12,10))
         for i,j in enumerate(station_indices):
-            axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
-            axes[i].plot(preds[:, i], label="Predicted", c="red", alpha=0.5)
-            station_name = self.test_dataloader.dataset.get_column_name(j)
+            axes[i].plot(timestamps, truth[:, i], label="True", c="blue", alpha=0.5)
+            axes[i].plot(timestamps, preds[:, i], label="Predicted", c="red", alpha=0.5)
+            station_name = self.test_dataloader.dataset.df.columns[j]
             axes[i].title.set_text(f"Traffic station {station_name}")
             axes[i].legend(loc="upper right")
         fig.tight_layout()
