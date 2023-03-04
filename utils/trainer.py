@@ -23,8 +23,7 @@ class Trainer():
         self.val_steps = len(train_dataloader) // config["val_per_epoch"]
         self.earlystopper = EarlyStopper(limit=config["earlystop_limit"])
         self.train_history = {"train_loss" : [], "val_loss" : []}
-        self.predictions = [] 
-        self.ground_truth = []
+        self.test_results = {"timestamps" : [], "predictions" : [], "ground_truth" : []}
 
     def train_step(self, data):
         X, y = self.get_data_and_targets(data)
@@ -112,11 +111,11 @@ class Trainer():
 
                 # Save ground truth and predictions for later use
                 gt_list, pred_list = self.batch_to_list(data, preds)
-                self.ground_truth.extend(gt_list)
-                self.predictions.extend(pred_list)
+                self.test_results["ground_truth"].extend(gt_list)
+                self.test_results["predictions"].extend(pred_list)
 
-            self.ground_truth = np.array(self.ground_truth)
-            self.predictions = np.array(self.predictions)
+            #self.test_res= np.array(self.ground_truth)
+            #self.predictions = np.array(self.predictions)
             mean_test_loss = np.mean(test_losses)
 
         print(f"Test Loss: {mean_test_loss:.4f}")
@@ -126,12 +125,12 @@ class Trainer():
 
     def save_prediction_plot(self, station_indices, from_index, length):
         # Plots predictions and ground truth for stations with indices in station_indices
-        preds = self.predictions[from_index:from_index+length, :]
-        truth = self.ground_truth[from_index:from_index+length, :]
+        preds = self.test_results["predictions"][from_index:from_index+length]
+        truth = self.test_results["ground_truth"][from_index:from_index+length]
         fig, axes = plt.subplots(nrows=len(station_indices), ncols=1, figsize=(12,10))
         for i,j in enumerate(station_indices):
-            axes[i].plot(truth[:, i], label="True", c="blue", alpha=0.5)
-            axes[i].plot(preds[:, i], label="Predicted", c="red", alpha=0.5)
+            axes[i].plot(truth[:][i], label="True", c="blue", alpha=0.5)
+            axes[i].plot(preds[:][i], label="Predicted", c="red", alpha=0.5)
             #axes[i].title.set_text(f"Traffic station {station_names[i]}")
             axes[i].legend(loc="upper right")
         fig.tight_layout()
