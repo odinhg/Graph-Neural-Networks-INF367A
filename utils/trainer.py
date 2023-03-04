@@ -145,7 +145,7 @@ class Trainer():
             fig.suptitle(f"Traffic station {station_id}")
             fig.tight_layout()
             filename = join(self.prediction_plot_dir, f"{i:03}_{station_id}.png")
-            plt.savefig(filename, dpi=50)
+            plt.savefig(filename, dpi=80)
             plt.cla()
 
 class BaselineTrainer(Trainer):
