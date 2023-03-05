@@ -59,7 +59,7 @@ Four models, named Baseline, GNN, GNN_NE and GNN_KNN, respectively were trained 
 
 |GNN||
 |-|-|
-|**Description**|Graph NN with edge, node and global models. We follow the approach descriped in the paper [Relational Inductive Biases, Deep Learning, and Graph Networks](https://arxiv.org/abs/1806.01261). The edge features are updated first, followed by the node features and then the global/graph features. We use the arithmetic mean as aggregation in all models. Using the `MetaLayer` class in PyG, we construct the `GNNLayer` class. Stacking five of these layers we create the `GNNModel` class found in `models/gnn.py`. <br /><br/>The graph (edges) used was hand-crafted by looking at a map showing the roads between stations.<br />![Hand-crafted graph](docs/traffic_stations_map_with_edges_1.png)<br />*Figure: Hand-crafted graph.* <br /><br />Both node and edge features are 1-dimensional and consist of traffic volume and $e^{-d_{ij}}$ (where $d_{ij}$ is the geodesic distance between nodes $i$ and $j$), respectively. The idea behind the edge feature is that edges between nearby traffic stations are more important than those far apart. The global graph features are 3-dimensional and consist of month number, weekday number and hour of day.|
+|**Description**|Graph NN with edge, node and global models. We follow the approach descriped in the paper [Relational Inductive Biases, Deep Learning, and Graph Networks](https://arxiv.org/abs/1806.01261). The edge features are updated first, followed by the node features and then the global/graph features. We use the arithmetic mean as aggregation in all models. Using the `MetaLayer` class in PyG, we construct the `GNNLayer` class. Stacking five of these layers we create the `GNNModel` class found in `models/gnn.py`. <br /><br/>The graph (edges) used was hand-crafted by looking at a map showing the roads between stations. The adjacency matrix for this graph is stored in the file `data/graph.pkl` as a pickled DataFrame. <br />![Hand-crafted graph](docs/traffic_stations_map_with_edges_1.png)<br />*Figure: Hand-crafted graph.* <br /><br />Both node and edge features are 1-dimensional and consist of traffic volume and $e^{-d_{ij}}$ (where $d_{ij}$ is the geodesic distance between nodes $i$ and $j$), respectively. The idea behind the edge feature is that edges between nearby traffic stations are more important than those far apart. The global graph features are 3-dimensional and consist of month number, weekday number and hour of day.|
 |**Parameters**|113999 (0.51MB)|
 
 |GNN_NE||
@@ -99,12 +99,20 @@ The following table summarizes the results from training and evaluation of the m
 ## Plots of training and validation losses
 
 ### Baseline
+![Loss plot for Baseline](figs/baseline_loss_plot.png)
+*Figure: Training and validation loss for the Baseline model.*
 
 ### GNN
+![Loss plot for GNN](figs/gnn_loss_plot.png)
+*Figure: Training and validation loss for the GNN model.*
 
 ### GNN_NE
+![Loss plot for GNN_NE](figs/gnn_ne_loss_plot.png)
+*Figure: Training and validation loss for the GNN_NE model.*
 
 ### GNN_KNN
+![Loss plot for GNN_KNN](figs/gnn_knn_loss_plot.png)
+*Figure: Training and validation loss for the GNN_KNN model.*
 
 ## GNN vs Baseline model
 Huge improvement in training time and test accuracy. All GNN based models performs much better than the baseline model even though they have far fewer parameters. Some advantages of using a FCNN includes ease of implementation, fast training (time per epoch) and fast evaluation (forward pass). But there is likely room for optimizing the GNN implementations more than what was done in this project.
