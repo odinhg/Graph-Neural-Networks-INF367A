@@ -138,13 +138,25 @@ Here is another curious example highlighting the differences in predictions:
 The GNN model with edge feature updates performs better than the GNN_NE model which only updates node and graph features. But this comparison might be somewhat unfair since the GNN_NE model has fewer parameters in total.
 
 ## GNN vs GNN_KNN
-The performance of the models GNN and GNN_KNN are similar. The GNN_KNN model takes longer to complete training. This might be because it is also learning which edges are important. One advantage to using the kNN based graph is that we save time and effort by outsourcing some work to the model.
+The performance of the models GNN and GNN_KNN are similar with the GNN_KNN slightly better. The GNN_KNN model uses about 250% *longer time to complete training*! This is possibly because it also has to learn which edges are important. Also, we have more edges, so more data needs to be fed through the model. One advantage to using the kNN based graph is that we save time and effort by outsourcing some work to the model.
 
 ### Remark 1
-It would be interesting to see how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, giving geometric priors of "higher quality" might perform better.
+It is interesting to test how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, can giving geometric priors of "higher quality" give better results?
+
+Using only 40% of the data for training (and 30% for both validation and test data) we get the following results for the two models:
+||GNN|GNN_KNN|
+|-|-|-|
+|**Epochs trained**|24|40|
+|**Total training time**|374s|611s|
+|**Mean epoch time**|15.62s|15.29s|
+|**Test MAE**|32.56|33.29|
+
+Here, the GNN performed slightly bettter than the GNN_KNN model both in terms of training time and generalization error.
 
 ### Remark 2
 Another thing we could try: setting $k$ to a higher number (or using the complete graph) we could try to predict the edges which are most important.
 
 # Concluding remarks
 Knowing that the traffic volume at a geographic position is heavily correlated to the traffic along the same road and at nearby positions, we take advantage of this by providing geometric priors (in form of a graph). This improves accuracies, training times and the size of the model drastically.
+
+Of course, there are many choices when it comes to the exact architecture (number layers, hidden features and hidden dimension in the MLPs in the edge, node and global models) of the GNN models. Adding more parameters to the models did not significantly improve the performance on validation data. One could also consider adding residual/skip connection to the edge, node and/or global model.
