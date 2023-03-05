@@ -122,12 +122,14 @@ The following plots demonstrate the differences in predictions between the FCNN 
 |Baseline|GNN|
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/001_78845V804838.png)|![GNN predictions](figs/gnn_predictions/001_78845V804838.png)|
+
 *Figure: At some period in the plot, there is no reported traffic at this station (possible due to road works or an accident). The Baseline FCNN model seems to have learned the traffic as a function of time data and predicts traffic as normal. The GNN on the other hand, correctly predicts that there is no traffic during this period. This suggests that the GNN uses data from the node itself and its neighbours and does not solely rely on the time data.*
 
 Here is another curious example highlighting the differences in predictions:
 |Baseline|GNN|
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/065_03016V805614.png)|![GNN predictions](figs/gnn_predictions/065_03016V805614.png)|
+
 *Figure: It is not clear why the Baseline model performs so poorly in this example, but it might be because of abnormaly high traffic volume at the station. The GNN performs a lot better in this case.*
 
 ## GNN vs GNN_NE
