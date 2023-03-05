@@ -140,9 +140,11 @@ The GNN model with edge feature updates performs better than the GNN_NE model wh
 ## GNN vs GNN_KNN
 The performance of the models GNN and GNN_KNN are similar. The GNN_KNN model takes longer to complete training. This might be because it is also learning which edges are important. One advantage to using the kNN based graph is that we save time and effort by outsourcing some work to the model.
 
-### Remark
+### Remark 1
 It would be interesting to see how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, giving geometric priors of "higher quality" might perform better.
 
+### Remark 2
+Another thing we could try: setting $k$ to a higher number (or using the complete graph) we could try to predict the edges which are most important.
 
 # Concluding remarks
 Knowing that the traffic volume at a geographic position is heavily correlated to the traffic along the same road and at nearby positions, we take advantage of this by providing geometric priors (in form of a graph). This improves accuracies, training times and the size of the model drastically.
