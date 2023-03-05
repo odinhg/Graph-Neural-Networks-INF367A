@@ -1,6 +1,6 @@
 # Traffic data and graph neural networks
 ### Project 1 in INF367A : Topological Deep Learning
-**Odin Hoff Gardå, 2023 **
+**Odin Hoff Gardå, March 2023**
 
 # Introduction
 
@@ -17,13 +17,10 @@ Configurations for pre-processing, training and the different models can be set 
 
 # Pre-processing and data summary
 
-The dataset, provided by Statens Vegvesen, contains observed traffic volumes from 109 traffic stations at Vestlandet in Norway. The observations are collected every hour from 2014-12-31 23:00 to 2022-12-31 21:00. We also have GPS coordinates (latitude and longitude) for each traffic station in the dataset.
+The dataset, provided by Statens Vegvesen, contains observed traffic volumes from 109 traffic stations at Vestlandet in Norway. The observations are collected every hour from 2014-12-31 23:00 to 2022-12-31 21:00. We also have GPS coordinates (latitude and longitude) for each traffic station in the dataset. A table summarizing the dataset can be found in `docs/data_summary_table.md` (created by running `create_data_summary.py`).
 
-TODO: INSERT IMAGES OF MAP HERE
-
-## Dataset summary
-
-A summary of the dataset can be found in `docs/data_summary_table.md` (created by running `create_data_summary.py`). 
+![Stations on map](docs/traffic_stations_map_1.png)
+*Figure: Geographic positions of the traffic stations.*
 
 ## Pre-processing of data
 
@@ -62,7 +59,7 @@ Four models, named Baseline, GNN, GNN_NE and GNN_KNN, respectively were trained 
 
 |GNN||
 |-|-|
-|**Description**|Graph NN with edge, node and global models. We follow the approach descriped in the paper [Relational Inductive Biases, Deep Learning, and Graph Networks](https://arxiv.org/abs/1806.01261). The edge features are updated first, followed by the node features and then the global/graph features. We use the arithmetic mean as aggregation in all models. Using the `MetaLayer` class in PyG, we construct the `GNNLayer` class. Stacking five of these layers we create the `GNNModel` class found in `models/gnn.py`. The graph (edges) used was manually crafted by an expert in study of traffic (that's me!). Both node and edge features are 1-dimensional and consist of traffic volume and $e^{-d_{ij}}$ (where $d_{ij}$ is the geodesic distance between nodes $i$ and $j$), respectively. The idea behind the edge feature is that edges between nearby traffic stations are more important than those far apart. The global graph features are 3-dimensional and consist of month number, weekday number and hour of day.|
+|**Description**|Graph NN with edge, node and global models. We follow the approach descriped in the paper [Relational Inductive Biases, Deep Learning, and Graph Networks](https://arxiv.org/abs/1806.01261). The edge features are updated first, followed by the node features and then the global/graph features. We use the arithmetic mean as aggregation in all models. Using the `MetaLayer` class in PyG, we construct the `GNNLayer` class. Stacking five of these layers we create the `GNNModel` class found in `models/gnn.py`. <br /><br/>The graph (edges) used was hand-crafted by looking at a map showing the roads between stations.<br />![Hand-crafted graph](docs/traffic_stations_map_with_edges_1.png)<br />*Figure: Hand-crafted graph.* <br /><br />Both node and edge features are 1-dimensional and consist of traffic volume and $e^{-d_{ij}}$ (where $d_{ij}$ is the geodesic distance between nodes $i$ and $j$), respectively. The idea behind the edge feature is that edges between nearby traffic stations are more important than those far apart. The global graph features are 3-dimensional and consist of month number, weekday number and hour of day.|
 |**Parameters**|113999 (0.51MB)|
 
 |GNN_NE||
