@@ -10,8 +10,8 @@ def choose_model(configs):
         n = int(input() or 0)
 
     config = configs[n]
-
+    print("Loaded model configuration:")
     for key, value in config.items():
-        print(f"{key}: {value}")
+        print(f"\t* {key}: {value}")
 
     return config

@@ -53,18 +53,30 @@ def TrafficVolumeDataLoader(datafile, batch_size=32, num_workers=4, shuffle=Fals
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last)
     return dataloader
 
-def create_edge_index_and_features(stations_included_file, graph_file, stations_data_file):
+def create_edge_index_and_features(stations_included_file, stations_data_file, graph_file=None):
     """
         Create adjacency matrix and return edge index in COO format.
         stations_included_file : File containing IDs of the stations included in the pre-processed data.
-        graph_file : File containing adjacency matrix (for all stations).
+        graph_file : File containing adjacency matrix (for all stations). If graph_file is None, then create kNN graph.
         stations_data_file: File containing stations IDs and GPS coordinates (lat, lon)
     """
     stations_included = pd.read_csv(stations_included_file).iloc[:, 1]
-    graph_df = pd.read_pickle(graph_file).loc[stations_included, stations_included]
     stations_data_df = pd.read_csv(stations_data_file) 
     positions = stations_data_df.loc[stations_data_df["id"].isin(stations_included), ["latitude", "longitude"]].to_numpy()
     distance_matrix = squareform(pdist(positions, metric=lambda lat,lon: geodesic(lat,lon).km))
+
+    if graph_file:
+        print(f"Using pre-defined graph from file ({graph_file})...")
+        graph_df = pd.read_pickle(graph_file).loc[stations_included, stations_included]
+    else:
+        # Create kNN graph
+        K = 10 
+        print(f"Using KNN graph with K={K}...")
+        graph_df = pd.DataFrame(0, index=stations_included, columns=stations_included)
+        for i, row in enumerate(distance_matrix):
+            knn = np.argsort(row)[:K]
+            graph_df.iloc[i, knn] = 1
+
     # Convert adjacency matrix to COO format for use with PyG
     num_nodes = len(graph_df)
     start_indices = []
@@ -110,6 +122,6 @@ class TrafficVolumeGraphDataSet(TrafficVolumeDataSet):
 
 def TrafficVolumeGraphDataLoader(datafile, edge_index, edge_attr, batch_size=32, num_workers=4, shuffle=False, drop_last=False):
     dataset = TrafficVolumeGraphDataSet(datafile, edge_index, edge_attr)
-    dataloader = torch_geometric.loader.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last)
+    dataloader = torch_geometric.loader.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last, pin_memory=True)
     return dataloader
 
