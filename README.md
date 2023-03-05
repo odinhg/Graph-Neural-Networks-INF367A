@@ -144,14 +144,20 @@ The performance of the models GNN and GNN_KNN are similar with the GNN_KNN sligh
 It is interesting to test how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, can giving geometric priors of "higher quality" give better results?
 
 Using only 40% of the data for training (and 30% for both validation and test data) we get the following results for the two models:
+
 ||GNN|GNN_KNN|
 |-|-|-|
 |**Epochs trained**|24|40|
-|**Total training time**|374s|611s|
-|**Mean epoch time**|15.62s|15.29s|
 |**Test MAE**|32.56|33.29|
 
-Here, the GNN performed slightly bettter than the GNN_KNN model both in terms of training time and generalization error.
+Here, the GNN performed slightly bettter than the GNN_KNN model. Both in terms of training time and generalization error. To push the idea even further, we redo the experiment with only 20% of the data for training (and the rest for test and validation data).
+
+||GNN|GNN_KNN|
+|-|-|-|
+|**Epochs trained**|24|28|
+|**Test MAE**|37.496|38.962|
+
+Again, the GNN using the hand-crafted graph as the geometric prior performs slightly better than the GNN using the kNN graph.
 
 ### Remark 2
 Another thing we could try: setting $k$ to a higher number (or using the complete graph) we could try to predict the edges which are most important.

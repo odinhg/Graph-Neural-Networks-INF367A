@@ -20,8 +20,8 @@ stations_included_file = join(data_path, "stations_included.csv")
 
 # Pre-processing
 min_number_of_observations = 1500   # Drop stations having too few observations
-val_fraction = 0.40#0.15                 # Fraction of data to use for validation data
-test_fraction = 0.40#0.15                # Fraction of data to use for test data
+val_fraction = 0.15                 # Fraction of data to use for validation data
+test_fraction = 0.15                # Fraction of data to use for test data
 normalize_data = None               # "minmax" : scale to [0,1], "normal" : use z-scores, None : no normalization
 
 # Training 
