@@ -83,9 +83,10 @@ All four models were trained using the following configuration:
 |**Optimizer**|Adam with default parameters|
 |**LR scheduler**|No (but implemented in code)|
 |**Validation steps per epoch**|4|
-|**Earlystopping rule**|Stop if 15 consecutive steps with validation loss worse than the lowest validtion loss + 0.5|
-|**Loss function**| L1-Loss (MAE)|
+|**Earlystopping rule**|Stop if 15 consecutive steps have validation loss worse than the so far lowest validtion loss + 0.5|
+|**Loss function**| $L_1$-loss (MAE)|
 
+**Note:** Using $L_1$-loss we report the generalization error as the mean absolute error (MAE). We could also use $L_2$-loss and and report RMSE (root mean squared error), but the training was more stable using $L_1$-loss.
 
 The following table summarizes the results from training and evaluation of the models on the test dataset:
 
@@ -123,14 +124,15 @@ The following plots demonstrate the differences in predictions between the FCNN 
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/001_78845V804838.png)|![GNN predictions](figs/gnn_predictions/001_78845V804838.png)|
 
-*Figure: At some period in the plot, there is no reported traffic at this station (possible due to road works or an accident). The Baseline FCNN model seems to have learned the traffic as a function of time data and predicts traffic as normal. The GNN on the other hand, correctly predicts that there is no traffic during this period. This suggests that the GNN uses data from the node itself and its neighbours and does not solely rely on the time data.*
+*Figure: During one period in the plot, there is no reported traffic at this station (possible due to road works or an accident). The Baseline FCNN model seems to have learned the traffic as a function of time data and predicts traffic as normal. The GNN on the other hand, correctly predicts that there is no traffic during this period. This suggests that the GNN uses data from the node itself and its neighbours and does not solely rely on the time data.*
 
 Here is another curious example highlighting the differences in predictions:
 |Baseline|GNN|
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/065_03016V805614.png)|![GNN predictions](figs/gnn_predictions/065_03016V805614.png)|
 
-*Figure: It is not clear why the Baseline model performs so poorly in this example, but it might be because of abnormaly high traffic volume at the station. The GNN performs a lot better in this case.*
+*Figure: It is not clear why the Baseline model performs so poorly in this example, but it might be because of abnormaly high traffic volume at the station. The GNN performs a lot better in this case too. Well done GNN!*
+
 
 ## GNN vs GNN_NE
 The GNN model with edge feature updates performs better than the GNN_NE model which only updates node and graph features. But this comparison might be somewhat unfair since the GNN_NE model has fewer parameters in total.
@@ -143,4 +145,4 @@ It would be interesting to see how the GNN and GNN_KNN models compare if we rest
 
 
 # Concluding remarks
-Knowing that traffic at a geographic position is correlated to the traffic along the same road and at nearby positions, we take advantage of this by providing geometric priors in form of 
+Knowing that the traffic volume at a geographic position is heavily correlated to the traffic along the same road and at nearby positions, we take advantage of this by providing geometric priors (in form of a graph). This improves accuracies, training times and the size of the model drastically.
