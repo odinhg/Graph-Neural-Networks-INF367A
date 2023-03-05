@@ -28,7 +28,7 @@ if __name__ == "__main__":
     elif name == "GNN_NE":
         # Graph NN with node and graph model (using pre-defined graph)
         model = GNNModel(use_edge_model=False)
-        edge_index, edge_weight = create_edge_index_and_features(stations_included_file, stations_data_file, graph_file)
+        edge_index, edge_weight = create_edge_index_and_features(stations_included_file, stations_data_file, graph_file, compute_edge_features=False)
         train_dataloader = TrafficVolumeGraphDataLoader(train_data_file, edge_index, edge_weight, batch_size, num_workers, shuffle=True)
         val_dataloader = TrafficVolumeGraphDataLoader(val_data_file, edge_index, edge_weight, batch_size, num_workers)
         test_dataloader = TrafficVolumeGraphDataLoader(test_data_file, edge_index, edge_weight, batch_size, num_workers)

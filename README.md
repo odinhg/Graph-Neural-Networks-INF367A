@@ -64,7 +64,7 @@ Four models, named Baseline, GNN, GNN_NE and GNN_KNN, respectively were trained 
 
 |GNN_NE||
 |-|-|
-|**Description**|The GNN_NE is the same model as GNN but without the edge model. That is, we do not update the edge features in this model.|
+|**Description**|The GNN_NE is the same model as GNN but without the edge model. That is, we do not update the edge features in this model. Furthermore, all edges are weighted equally with value $1.0$.|
 |**Parameters**|83914 (0.37MB)|
 
 |GNN_KNN||
@@ -160,7 +160,7 @@ Here, the GNN performed slightly bettter than the GNN_KNN model. Both in terms o
 Again, the GNN using the hand-crafted graph as the geometric prior performs slightly better than the GNN using the kNN graph.
 
 ### Remark 2
-Another thing we could try: setting $k$ to a higher number (or using the complete graph) we could try to predict the edges which are most important.
+Another thing that would be interesting to try: setting $k$ to a higher number (or using the complete graph) we could try to predict the edges which are most important.
 
 # Concluding remarks
 Knowing that the traffic volume at a geographic position is heavily correlated to the traffic along the same road and at nearby positions, we take advantage of this by providing geometric priors (in form of a graph). This improves accuracies, training times and the size of the model drastically.

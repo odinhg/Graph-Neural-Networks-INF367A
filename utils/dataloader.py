@@ -53,12 +53,13 @@ def TrafficVolumeDataLoader(datafile, batch_size=32, num_workers=4, shuffle=Fals
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers, drop_last=drop_last)
     return dataloader
 
-def create_edge_index_and_features(stations_included_file, stations_data_file, graph_file=None):
+def create_edge_index_and_features(stations_included_file, stations_data_file, graph_file=None, compute_edge_features=True):
     """
         Create adjacency matrix and return edge index in COO format.
         stations_included_file : File containing IDs of the stations included in the pre-processed data.
         graph_file : File containing adjacency matrix (for all stations). If graph_file is None, then create kNN graph.
         stations_data_file: File containing stations IDs and GPS coordinates (lat, lon)
+        compute_edge_features : If false, then set all edge features to 1.0.
     """
     stations_included = pd.read_csv(stations_included_file).iloc[:, 1]
     stations_data_df = pd.read_csv(stations_data_file) 
@@ -90,7 +91,10 @@ def create_edge_index_and_features(stations_included_file, stations_data_file, g
                 start_indices.extend([i,j])
                 end_indices.extend([j,i])
                 # Add edge weights
-                edge_feature = np.exp(-distance_matrix[i,j])
+                if compute_edge_features:
+                    edge_feature = np.exp(-distance_matrix[i,j])
+                else:
+                    edge_feature = 1.0
                 edge_features.extend(2 * [[edge_feature]])
 
     edge_index = torch.tensor([start_indices, end_indices], dtype=torch.long)
