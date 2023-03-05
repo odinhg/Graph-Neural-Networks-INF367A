@@ -93,7 +93,7 @@ All four models were trained using the following configuration:
 The following table summarizes the results from training and evaluation of the models on the test dataset:
 
 |**Model**|**Epochs trained**|**Mean epoch time**|**Total training time**|**Test MAE**|
-|-|-|-|-|-|-|-|
+|-|-|-|-|-|
 |**Baseline**|63|7.51s|473s|54.9772|
 |**GNN**|24|14.59s|350s|30.4281|
 |**GNN_NE**|36|11.40s|410s|33.1379|
