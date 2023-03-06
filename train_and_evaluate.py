@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch_geometric.seed import seed_everything
 from os.path import isfile
 
 from config import *
@@ -9,8 +8,6 @@ from models import BaseLineModel, GNNModel
 from utils import TrafficVolumeDataLoader, TrafficVolumeGraphDataLoader, create_edge_index_and_features
 
 if __name__ == "__main__":  
-    seed_everything(0)
-
     config = choose_model(configs)
     name = config["name"]
     lr = config["lr"]

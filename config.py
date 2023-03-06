@@ -1,4 +1,8 @@
 from os.path import join
+from torch_geometric.seed import seed_everything
+
+# Seed random generators (python, torch, numpy)
+seed_everything(0)
 
 # Paths
 data_path = "data"
