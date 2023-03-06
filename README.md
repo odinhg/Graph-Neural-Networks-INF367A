@@ -134,7 +134,6 @@ The following plots demonstrate the differences in predictions between the FCNN 
 *Figure: It is not clear why the Baseline model performs so poorly in this example, but it might be because of abnormaly high traffic volume at the station. The GNN performs a lot better in this case too. Well done GNN!*
 
 |Baseline|GNN|
-
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/020_65182V384013.png)|![GNN predictions](figs/gnn_predictions/020_65182V384013.png)|
 
