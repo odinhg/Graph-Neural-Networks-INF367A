@@ -28,15 +28,15 @@ The dataset, provided by Statens Vegvesen, contains observed traffic volumes fro
 
 ### Stations included
 
-Stations with less than $1500$ observation in total are dropped from the dataset. This limit can be set in `config.py` before running the pre-processing script.
+Stations with less than $1500$ observation in total are dropped from the dataset. This limit can be set in `config.py` before running the pre-processing script. After dropping stations with too few observations, we are left with 95 stations.
 
 ### Missing values
 
-Some observations are missing and are replaced by $-1$ in the custom PyTorch dataset before being fed to the model. After inspection of the dataset, we see that all stations are missing observations at $22:00$ every day. We fill these rows with the mean value of the row before and after $22:00$.
+Some observations are missing and are given the value NaN. These NaN values are later replaced by $-1$ in the custom PyTorch dataset before being fed to the model. For an unknown reason, all stations are missing observations at 22:00 every day. We fill these rows with the mean value of the row before and row after the affected row.
 
 ### Normalization
 
-No normalization was used in the end. The L1-loss (MAE) seems to handle unnormalized data well, and normalization did not improve the validation loss. Normalization by scaling the data to $[0,1]$ or by computing z-scores (using mean and standard deviation computed on the training data) can be selected in `config.py` before running the pre-processing script.
+No normalization was used in the end. The L1-loss (MAE) seems to handle unnormalized data well, and normalization did not improve the validation loss. Normalization by scaling the data to $[0,1]$ or by computing z-scores can be selected in `config.py` before running the pre-processing script. The statistics (minimum, maximum, mean and standard deviation) are computed on the training data to prevent data leakage.
 
 ### Dataset split
 
