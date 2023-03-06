@@ -42,7 +42,7 @@ config_baseline["val_per_epoch"] = 4
 config_baseline["checkpoint_file"] = join(checkpoints_path, "baseline.pth") 
 config_baseline["prediction_plot_dir"] = join(figs_path, "baseline_predictions")
 config_baseline["loss_plot_file"] = join(figs_path, "baseline_loss_plot.png")
-config_baseline["earlystop_limit"] = 15 
+config_baseline["earlystop_limit"] = 20 
 
 
 # GNN model config
@@ -55,7 +55,7 @@ config_gnn["val_per_epoch"] = 4
 config_gnn["checkpoint_file"] = join(checkpoints_path, "gnn.pth") 
 config_gnn["prediction_plot_dir"] = join(figs_path, "gnn_predictions")
 config_gnn["loss_plot_file"] = join(figs_path, "gnn_loss_plot.png")
-config_gnn["earlystop_limit"] = 15
+config_gnn["earlystop_limit"] = 20
 
 # GNN model with no edge model
 config_gnn_ne = {}
@@ -67,7 +67,7 @@ config_gnn_ne["val_per_epoch"] = 4
 config_gnn_ne["checkpoint_file"] = join(checkpoints_path, "gnn_ne.pth") 
 config_gnn_ne["prediction_plot_dir"] = join(figs_path, "gnn_ne_predictions")
 config_gnn_ne["loss_plot_file"] = join(figs_path, "gnn_ne_loss_plot.png")
-config_gnn_ne["earlystop_limit"] = 15 
+config_gnn_ne["earlystop_limit"] = 20 
 
 # GNN model with kNN generated graph
 config_gnn_knn = {}
@@ -79,7 +79,7 @@ config_gnn_knn["val_per_epoch"] = 4
 config_gnn_knn["checkpoint_file"] = join(checkpoints_path, "gnn_knn.pth") 
 config_gnn_knn["prediction_plot_dir"] = join(figs_path, "gnn_knn_predictions")
 config_gnn_knn["loss_plot_file"] = join(figs_path, "gnn_knn_loss_plot.png")
-config_gnn_knn["earlystop_limit"] = 15 
+config_gnn_knn["earlystop_limit"] = 20 
 
 # List of all models
 configs = [config_baseline, config_gnn, config_gnn_ne, config_gnn_knn]

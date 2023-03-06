@@ -83,21 +83,23 @@ All four models were trained using the following configuration:
 |**Optimizer**|Adam with default parameters|
 |**LR scheduler**|No (but implemented in code)|
 |**Validation steps per epoch**|4|
-|**Earlystopping rule**|Stop if 15 consecutive steps have validation loss worse than the so far lowest validtion loss + 0.5|
+|**Earlystopping rule**|Stop if 20 consecutive steps have validation loss worse than the so far lowest validtion loss + 0.5|
 |**Loss function**| $L_1$-loss (MAE)|
 
-**Note:** Using $L_1$-loss we report the generalization error as the mean absolute error (MAE). We could also use $L_2$-loss and and report RMSE (root mean squared error), but the training was more stable using $L_1$-loss.
+**Note:** We report the generalization error as both the mean absolute error (MAE) and the root mean squared error (RMSE). Using $L_1$-loss during training gave better stability and faster convergence of the validation and training losses.
 
 The following table summarizes the results from training and evaluation of the models on the test dataset:
 
-|**Model**|**Epochs trained**|**Mean epoch time**|**Total training time**|**Test MAE**|
+|**Model**|**Epochs trained**|**Epoch model saved at**|**Mean epoch time**|**Total training time**|**Test MAE**|**Test RMSE**|
 |-|-|-|-|-|
-|**Baseline**|63|7.51s|473s|54.9772|
-|**GNN**|24|14.59s|350s|30.4281|
-|**GNN_NE**|36|11.40s|410s|33.1379|
-|**GNN_KNN**|60|15s|900s|29.4722|
+|**Baseline**|88|80|7.7s|674s|54.29|**117.69**|
+|**GNN**|49|43|14.8s|723s|28.10|**53.00**|
+|**GNN_NE**|31|26|11.7s|363s|33.19|**65.30**|
+|**GNN_KNN**|61|54|15s|914s|28.96|**55.14**|
 
 ## Plots of training and validation losses
+
+The following plots show the training and validation losses for each of the models during training. Notice that the GNN models have an earlier and steeper drop in loss than the fully connected Baseline model.
 
 ### Baseline
 ![Loss plot for Baseline](figs/baseline_loss_plot.png)
@@ -143,10 +145,10 @@ The following plots demonstrate the differences in predictions between the FCNN 
 The GNN model with edge feature updates performs better than the GNN_NE model which only updates node and graph features. But this comparison might be somewhat unfair since the GNN_NE model has fewer parameters in total.
 
 ## GNN vs GNN_KNN
-The performance of the models GNN and GNN_KNN are similar with the GNN_KNN slightly better. The GNN_KNN model uses about 250% *longer time to complete training*! This is possibly because it also has to learn which edges are important. Also, we have more edges, so more data needs to be fed through the model. One advantage to using the kNN based graph is that we save time and effort by outsourcing some work to the model.
+The performance of the models GNN and GNN_KNN are similar with the GNN slightly better. The GNN_KNN model uses about 26% *more time to complete training*! This is possibly because it also has to learn which edges are important. Also, we have more edges, so a bit more data needs to be fed through the model resulting in a small increase in mean epoch time. One advantage to using the kNN based graph is that we save time and effort by outsourcing some work to the model.
 
 ### Remark 1
-It is interesting to test how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, can giving geometric priors of "higher quality" give better results?
+It is interesting to test how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, will giving geometric priors of "higher quality" give even better results?
 
 Using only 40% of the data for training (and 30% for both validation and test data) we get the following results for the two models:
 

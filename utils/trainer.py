@@ -28,6 +28,7 @@ class Trainer():
         self.train_history = {"train_loss" : [], "val_loss" : []}
         self.test_results = {"predictions" : [], "ground_truth" : []}
         self.epoch_times = []
+        self.checkpoint_saved_epoch = 0
 
     def train_step(self, data):
         X, y = self.get_data_and_targets(data)
@@ -58,6 +59,7 @@ class Trainer():
 
                     if mean_val_loss <= np.min(self.train_history["val_loss"], initial=np.inf):
                         torch.save(self.model.state_dict(), self.checkpoint_file)
+                        self.checkpoint_saved_epoch = epoch
 
                     if self.earlystopper(mean_val_loss):
                         print(f"Early stopped at epoch {epoch}!")
@@ -113,6 +115,7 @@ class Trainer():
 
     def summarize_training(self):
         self.save_loss_plot()
+        print(f"Last checkpoint saved at epoch {self.checkpoint_saved_epoch}.")
         print(f"Total training time: {np.sum(self.epoch_times):.2f}s.")
         print(f"Mean epoch time: {np.mean(self.epoch_times):.2f}s.")
 
