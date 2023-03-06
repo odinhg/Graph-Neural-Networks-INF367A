@@ -2,6 +2,8 @@
 ### Project 1 in INF367A : Topological Deep Learning
 **Odin Hoff Gardå, March 2023**
 
+![Toad](docs/toad.png)
+
 # Introduction
 
 We train and compare four machine learning models, one fully connected neural network and three graph neural networks. The objective is to predict traffic volumes for all traffic stations (nodes) for the next hour given the current traffic volumes, month, weekday and hour.
