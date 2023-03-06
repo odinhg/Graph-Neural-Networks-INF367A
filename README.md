@@ -120,19 +120,25 @@ Huge improvement in training time and test accuracy. All GNN based models perfor
 
 ### Differences in predictions
 The following plots demonstrate the differences in predictions between the FCNN and GNN networks.
+
 |Baseline|GNN|
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/001_78845V804838.png)|![GNN predictions](figs/gnn_predictions/001_78845V804838.png)|
 
 *Figure: During one period in the plot, there is no reported traffic at this station (possible due to road work, accident or equipment fault/maintenance). The Baseline FCNN model seems to have learned the traffic as a function of time data and predicts traffic as normal. The GNN on the other hand, correctly predicts that there is no traffic during this period. This suggests that the GNN uses data from the node itself and its neighbours and does not solely rely on the time data.*
 
-Here is another curious example highlighting the differences in predictions:
 |Baseline|GNN|
 |-|-|
 |![Baseline predictions](figs/baseline_predictions/065_03016V805614.png)|![GNN predictions](figs/gnn_predictions/065_03016V805614.png)|
 
 *Figure: It is not clear why the Baseline model performs so poorly in this example, but it might be because of abnormaly high traffic volume at the station. The GNN performs a lot better in this case too. Well done GNN!*
 
+|Baseline|GNN|
+
+|-|-|
+|![Baseline predictions](figs/baseline_predictions/020_65182V384013.png)|![GNN predictions](figs/gnn_predictions/020_65182V384013.png)|
+
+*Figure: Here, we are missing values for the entire time period shown (recall that missing values are given the value -1.0). The Baseline model's predictions are all over the place, whereas the GNN's predictions are far more stable and close to -1.0.*
 
 ## GNN vs GNN_NE
 The GNN model with edge feature updates performs better than the GNN_NE model which only updates node and graph features. But this comparison might be somewhat unfair since the GNN_NE model has fewer parameters in total.

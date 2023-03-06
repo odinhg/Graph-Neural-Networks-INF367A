@@ -122,12 +122,15 @@ class Trainer():
         self.model.eval()
         print("Evaluating model on test data...")
         with torch.no_grad():
-            test_losses = []
+            test_losses = []        # L1 losses
+            test_losses_rmse = []    # Square root of L2 losses
             for data in tqdm(self.test_dataloader): 
                 X, y = self.get_data_and_targets(data) 
                 preds = self.model(X)
                 test_loss = self.loss_function(preds, y)
                 test_losses.append(test_loss.item())
+                test_loss_rmse = np.sqrt(torch.nn.functional.mse_loss(preds, y).detach().cpu())
+                test_losses_rmse.append(test_loss_rmse)
 
                 # Save ground truth and predictions for later use
                 gt_list, pred_list = self.batch_to_list(data, preds)
@@ -138,7 +141,9 @@ class Trainer():
             self.test_results[key] = np.asarray(self.test_results[key])
 
         mean_test_loss = np.mean(test_losses)
-        print(f"Test Loss: {mean_test_loss:.4f}")
+        mean_test_loss_rmse = np.mean(test_losses_rmse)
+        print(f"Test Loss (L1/MAE): {mean_test_loss:.4f}")
+        print(f"Test Loss (L2/RMSE): {mean_test_loss_rmse:.4f}")
 
     def batch_to_list(self, data, preds):
         pass
@@ -149,6 +154,7 @@ class Trainer():
         preds = self.test_results["predictions"][from_index:from_index+length, :]
         truth = self.test_results["ground_truth"][from_index:from_index+length, :]
         timestamps = self.test_dataloader.dataset.timestamps[from_index:from_index+length]
+
         # Which traffic stations to save prediction plots for
         station_indices = [1, 20, 36, 56, 62, 65, 71, 74, 79, 84]
         station_ids = self.test_dataloader.dataset.column_names[station_indices]
