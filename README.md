@@ -154,7 +154,7 @@ It is interesting to test how the GNN and GNN_KNN models compare if we restrict 
 
 We restrict the amount of training data to 50%, 40%, 30% and 20%, and compare the performance of the two models. The remaining data is equally split between validation and test data.
 
-|**Training data**|GNN Test MAE | GNN Test RMSE | GNN_KNN Test MAE | GNN_KNN Test RMSE | $\Delta$RMSE |
+|**Training data**|GNN Test MAE | GNN Test RMSE | GNN_KNN Test MAE | GNN_KNN Test RMSE | $\Delta\text{RMSE}$|
 |-|-|-|-|-|-|
 |70%|28.10|53.00|28.96|55.14|2.14|
 |50%|28.54|53.86|29.47|56.02|2.16|
