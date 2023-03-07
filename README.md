@@ -88,7 +88,7 @@ All four models were trained using the following configuration:
 |**Earlystopping rule**|Stop if 20 consecutive steps have validation loss worse than the so far lowest validtion loss + 0.5|
 |**Loss function**| $L_1$-loss (MAE)|
 
-**Note:** We report the generalization error as both the mean absolute error (MAE) and the root mean squared error (RMSE). Using $L_1$-loss during training gave better stability and faster convergence of the validation and training losses.
+**Note:** We report the generalization error as both the mean absolute error (MAE) and the root mean squared error (RMSE). Using $L_1$-loss during training gave better stability and faster convergence compared to using $L_2$-loss. 
 
 The following table summarizes the results from training and evaluation of the models on the test dataset:
 
@@ -101,7 +101,7 @@ The following table summarizes the results from training and evaluation of the m
 
 ## Plots of training and validation losses
 
-The following plots show the training and validation losses for each of the models during training. Notice that the GNN models have an earlier and steeper drop in loss than the fully connected Baseline model.
+The following plots show the training and validation losses for each of the models during training. Notice that the GNN models have an earlier and steeper drop in loss than the fully connected Baseline model. Note that the loss plots uses log scale on vertical axis.
 
 ### Baseline
 ![Loss plot for Baseline](figs/baseline_loss_plot.png)
@@ -120,7 +120,7 @@ The following plots show the training and validation losses for each of the mode
 *Figure: Training and validation loss for the GNN_KNN model.*
 
 ## GNN vs Baseline model
-Huge improvement in training time and test accuracy. All GNN based models performs much better than the baseline model even though they have far fewer parameters. Some advantages of using a FCNN includes ease of implementation, fast training (time per epoch) and fast evaluation (forward pass). But there is likely room for optimizing the GNN implementations more than what was done in this project.
+There is a huge improvement in training time and test accuracy. All GNN based models performs much better than the baseline model even though they have far fewer parameters. Some advantages of using a FCNN includes ease of implementation, fast training (time per epoch) and fast evaluation (forward pass). But there is likely room for optimizing the GNN implementations more than what was done in this project.
 
 ### Differences in predictions
 The following plots demonstrate the differences in predictions between the FCNN and GNN networks.
@@ -149,26 +149,22 @@ The GNN model with edge feature updates performs better than the GNN_NE model wh
 ## GNN vs GNN_KNN
 The performance of the models GNN and GNN_KNN are similar with the GNN slightly better. The GNN_KNN model uses about 26% *more time to complete training*! This is possibly because it also has to learn which edges are important. Also, we have more edges, so a bit more data needs to be fed through the model resulting in a small increase in mean epoch time. One advantage to using the kNN based graph is that we save time and effort by outsourcing some work to the model.
 
-### Remark 1
-It is interesting to test how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, will giving geometric priors of "higher quality" give even better results?
+### Remark: Expert opinion vs. auto-generated priors 
+It is interesting to test how the GNN and GNN_KNN models compare if we restrict the size of the training dataset. Given enough data, it seems likely that the network can learn which edges in the kNN graph are important. But with less training data, will giving geometric priors of "higher quality" give even better results? By higher quality, we mean restricting our hypothesis class based on deeper knowledge about the domain.
 
-Using only 40% of the data for training (and 30% for both validation and test data) we get the following results for the two models:
+We restrict the amount of training data to 50%, 40%, 30% and 20%, and compare the performance of the two models. The remaining data is equally split between validation and test data.
 
-||GNN|GNN_KNN|
-|-|-|-|
-|**Epochs trained**|24|40|
-|**Test MAE**|32.56|33.29|
+|**Training data**|GNN Test MAE | GNN Test RMSE | GNN_KNN Test MAE | GNN_KNN Test RMSE | $\Delta$RMSE |
+|-|-|-|-|-|-|
+|70%|28.10|53.00|28.96|55.14|2.14|
+|50%|28.54|53.86|29.47|56.02|2.16|
+|40%|30.82|59.61|33.14|65.34|5.73|
+|30%|33.14|65.34|35.42|70.92|5.58|
+|20%|37.68|74.88|37.58|75.92|1.04|
 
-Here, the GNN performed slightly bettter than the GNN_KNN model. Both in terms of training time and generalization error. To push the idea even further, we redo the experiment with only 20% of the data for training (and the rest for test and validation data).
+It is difficult to derive a certain conclusion from the above results. The GNN model using a hand-crafted graph always performs a bit better than the one using a kNN based graph (with $k=10$ in these experiments). It could be interesting to redo the experiments with a higher value for $k$.
 
-||GNN|GNN_KNN|
-|-|-|-|
-|**Epochs trained**|24|28|
-|**Test MAE**|37.496|38.962|
-
-Again, the GNN using the hand-crafted graph as the geometric prior performs slightly better than the GNN using the kNN graph.
-
-### Remark 2
+### Remark: An idea for the future
 Another thing that would be interesting to try: setting $k$ to a higher number (or using the complete graph) we could try to predict the edges which are most important.
 
 # Concluding remarks
